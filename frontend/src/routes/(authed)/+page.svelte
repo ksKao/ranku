@@ -16,6 +16,9 @@
 				Name: {data.user.name}
 			</p>
 			<p>
+				ID: {data.user.id}
+			</p>
+			<p>
 				JWT: {data.token}
 			</p>
 			<button
