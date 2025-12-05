@@ -1,5 +1,12 @@
 {
-	"files.associations": {
-		"*.css": "tailwindcss"
-	}
+  "files.associations": {
+    "*.css": "tailwindcss"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[svelte]": {
+    "editor.defaultFormatter": "svelte.svelte-vscode"
+  },
+  "prettier.documentSelectors": ["**/*.svelte"]
 }
