@@ -7,9 +7,15 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/joho/godotenv"
 )
 
 func main() {
+	if err := godotenv.Load(); err != nil {
+		log.Fatal(err.Error())
+	}
+	log.Println("Env loaded")
+
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)

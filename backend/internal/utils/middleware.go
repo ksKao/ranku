@@ -2,6 +2,7 @@ package utils
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/lestrrat-go/jwx/v3/jwk"
@@ -10,8 +11,13 @@ import (
 
 func AuthedMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		keyset, err := jwk.Fetch(r.Context(), "http://localhost:5173/api/auth/jwks")
+		env, err := GetEnv()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusForbidden)
+			return
+		}
 
+		keyset, err := jwk.Fetch(r.Context(), fmt.Sprintf("%s/api/auth/jwks", env.FRONTEND_URL))
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusForbidden)
 			return
