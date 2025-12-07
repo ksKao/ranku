@@ -1,3 +1,5 @@
+-- +goose Up
+-- +goose StatementBegin
 create table "user" (
     "id" text not null primary key,
     "name" text not null,
@@ -59,3 +61,23 @@ create index "session_userId_idx" on "session" ("userId");
 create index "account_userId_idx" on "account" ("userId");
 
 create index "verification_identifier_idx" on "verification" ("identifier");
+-- +goose StatementEnd
+
+-- +goose Down
+-- +goose StatementBegin
+drop index if exists "session_userId_idx";
+
+drop index if exists "account_userId_idx";
+
+drop index if exists "verification_identifier_idx";
+
+drop table if exists "jwks" cascade;
+
+drop table if exists "verification" cascade;
+
+drop table if exists "account" cascade;
+
+drop table if exists "session" cascade;
+
+drop table if exists "user" cascade;
+-- +goose StatementEnd

@@ -25,7 +25,7 @@ type page struct {
 }
 
 type media struct {
-	Id         int       `json:"id"`
+	Id         int32     `json:"id"`
 	Title      title     `json:"title"`
 	Characters character `json:"characters"`
 }
@@ -39,14 +39,14 @@ type character struct {
 }
 
 type characterNode struct {
-	Id          int            `json:"id"`
+	Id          int32          `json:"id"`
 	Image       characterImage `json:"image"`
 	Name        characterName  `json:"name"`
 	DateOfBirth dateOfBirth    `json:"dateOfBirth"`
-	BloodType   string         `json:"bloodType"`   // nullable
-	Age         string         `json:"age"`         // is string because some values are like "13-14"
-	Description string         `json:"description"` // nullable
-	Gender      string         `json:"gender"`      // nullable
+	BloodType   *string        `json:"bloodType"`
+	Age         *string        `json:"age"` // is string because some values are like "13-14"
+	Description *string        `json:"description"`
+	Gender      *string        `json:"gender"`
 }
 
 type characterImage struct {
@@ -58,9 +58,9 @@ type characterName struct {
 }
 
 type dateOfBirth struct {
-	Year  int `json:"year"`  // nullable
-	Month int `json:"month"` // nullable
-	Day   int `json:"day"`   // nullable
+	Year  *int32 `json:"year"`
+	Month *int32 `json:"month"`
+	Day   *int32 `json:"day"`
 }
 
 func GetAnilistTopAnimeWithCharacters(page int) (graphQLResponse, error) {
@@ -71,7 +71,7 @@ func GetAnilistTopAnimeWithCharacters(page int) (graphQLResponse, error) {
 			media(sort: SCORE_DESC, type: ANIME) {
 			  id
 			  title {
-				english
+				romaji
 			  }
 			  characters {
 				nodes {
