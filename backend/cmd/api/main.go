@@ -14,8 +14,12 @@ func main() {
 
 	r.Use(middleware.Logger)
 
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
+	})
+
 	r.Mount("/characters", routes.CharactersRouter())
 
-	log.Println("Server listening on 3000")
-	http.ListenAndServe(":3000", r)
+	log.Println("Server listening on 4000")
+	http.ListenAndServe(":4000", r)
 }
