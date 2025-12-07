@@ -1,0 +1,20 @@
+# Use Golang image to build the app
+FROM golang:1.25.5-alpine3.23 AS builder
+
+# Set the Current Working Directory inside the container
+WORKDIR /app
+
+# Copy the Go module and sum files
+COPY go.mod go.sum ./
+
+# Download the Go dependencies
+RUN go mod download
+
+# Copy the source code
+COPY . .
+
+# Build the Go app
+RUN go build -o cron ./cmd/cron/main.go
+
+# Run the binary
+CMD ["/app/cron"]

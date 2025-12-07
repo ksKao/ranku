@@ -1,0 +1,33 @@
+name: Run Migrations
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "backend/**"
+      - ".github/workflows/backend.yml"
+  workflow_dispatch:
+
+jobs:
+  migrate:
+    name: Migrate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.25.4'
+
+      - uses: actions/checkout@v5
+
+      - uses: mscno/setup-goose@v1
+      
+      - name: Create .env File
+        run: |
+          cd backend
+          echo "GOOSE_DBSTRING='${{ secrets.GOOSE_DBSTRING }}'" >> .env
+          echo "GOOSE_MIGRATION_DIR='${{ var.GOOSE_MIGRATION_DIR }}'" >> .env
+          echo "GOOSE_DRIVER='${{ var.GOOSE_DRIVER }}'" >> .env
+
+      - name: Run migrations
+        run: cd backend && goose up
