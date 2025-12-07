@@ -26,8 +26,8 @@ jobs:
         run: |
           cd backend
           echo "GOOSE_DBSTRING='${{ secrets.GOOSE_DBSTRING }}'" >> .env
-          echo "GOOSE_MIGRATION_DIR='${{ var.GOOSE_MIGRATION_DIR }}'" >> .env
-          echo "GOOSE_DRIVER='${{ var.GOOSE_DRIVER }}'" >> .env
+          echo "GOOSE_MIGRATION_DIR='${{ vars.GOOSE_MIGRATION_DIR }}'" >> .env
+          echo "GOOSE_DRIVER='${{ vars.GOOSE_DRIVER }}'" >> .env
 
       - name: Run migrations
         run: cd backend && goose up
