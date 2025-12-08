@@ -9,34 +9,24 @@ import (
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
 func updateDbCache() {
-	log.Println("Loading env into code...")
-	env, err := utils.GetEnv()
-
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	log.Println("Env loaded into code")
-
 	ctx := context.Background()
-	log.Println("Creating new pgxpool...")
-	conn, err := pgxpool.New(ctx, env.DB_CONNECTION_STRING)
+
+	conn, err := utils.GetDbConnection(ctx)
 
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Printf("Error getting DB connection: %s", err.Error())
 	}
-	log.Println("Pgxpool created")
 
 	defer conn.Close()
 
 	q := repositories.New(conn)
 
 	// fetch 50 pages of anime
-	for i := 1; i <= 2; i++ {
+	for i := 1; i <= 50; i++ {
 		log.Printf("Fetching page %d", i)
 
 		topAnimes, err := anilist.GetAnilistTopAnimeWithCharacters(i)
@@ -157,6 +147,8 @@ func updateDbCache() {
 		log.Printf("Sleeping 5 seconds to avoid rate limit...")
 		time.Sleep(5 * time.Second)
 	}
+
+	log.Printf("Finished")
 }
 
 func main() {

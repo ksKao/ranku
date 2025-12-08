@@ -1,37 +1,60 @@
 package routes
 
 import (
-	"encoding/json"
+	"context"
+	"fmt"
+	"log"
 	"net/http"
+	"ranku/internal/repositories"
 	"ranku/internal/utils"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 )
-
-type character struct {
-	Name string `json:"name"`
-}
 
 func CharactersRouter() http.Handler {
 	r := chi.NewRouter()
 
-	r.Use(utils.AuthedMiddleware)
-	r.Get("/", getAllCharacters)
+	r.Get("/", searchCharacters)
 
 	return r
 }
 
-func getAllCharacters(w http.ResponseWriter, r *http.Request) {
+func searchCharacters(w http.ResponseWriter, r *http.Request) {
 
-	ctx := r.Context()
+	ctx := context.Background()
+	query := r.URL.Query().Get("query")
 
-	characters := []character{
-		{Name: ctx.Value(utils.KeyUserID).(string)},
-	}
+	results := []repositories.SearchCharacterRow{}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(characters); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+	if (len(query)) == 0 {
+		render.JSON(w, r, results)
 		return
 	}
+
+	conn, err := utils.GetDbConnection(ctx)
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	q := repositories.New(conn)
+	results, err = q.SearchCharacter(ctx, fmt.Sprintf("%%%s%%", query))
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	log.Printf("Search characters returned %d results for query %s", len(results), query)
+
+	if len(results) == 0 {
+		render.JSON(w, r, []repositories.SearchCharacterRow{})
+		return
+	}
+
+	render.JSON(w, r, results)
 }

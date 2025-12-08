@@ -16,8 +16,8 @@ insert into "anime" ("name", "anilistId") values ($1, $2) returning id, name, "a
 `
 
 type CreateAnimeParams struct {
-	Name      string
-	AnilistId int32
+	Name      string `json:"name"`
+	AnilistId int32  `json:"anilistId"`
 }
 
 func (q *Queries) CreateAnime(ctx context.Context, arg CreateAnimeParams) (Anime, error) {
@@ -43,8 +43,8 @@ update "anime" set "name" = $1 where "anime"."id" = $2 returning id, name, "anil
 `
 
 type UpdateAnimeNameByIdParams struct {
-	Name string
-	ID   pgtype.UUID
+	Name string      `json:"name"`
+	ID   pgtype.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateAnimeNameById(ctx context.Context, arg UpdateAnimeNameByIdParams) (Anime, error) {

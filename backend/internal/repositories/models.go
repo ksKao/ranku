@@ -9,82 +9,82 @@ import (
 )
 
 type Account struct {
-	ID                    string
-	AccountId             string
-	ProviderId            string
-	UserId                string
-	AccessToken           *string
-	RefreshToken          *string
-	IdToken               *string
-	AccessTokenExpiresAt  pgtype.Timestamptz
-	RefreshTokenExpiresAt pgtype.Timestamptz
-	Scope                 *string
-	Password              *string
-	CreatedAt             pgtype.Timestamptz
-	UpdatedAt             pgtype.Timestamptz
+	ID                    string             `json:"id"`
+	AccountId             string             `json:"accountId"`
+	ProviderId            string             `json:"providerId"`
+	UserId                string             `json:"userId"`
+	AccessToken           *string            `json:"accessToken"`
+	RefreshToken          *string            `json:"refreshToken"`
+	IdToken               *string            `json:"idToken"`
+	AccessTokenExpiresAt  pgtype.Timestamptz `json:"accessTokenExpiresAt"`
+	RefreshTokenExpiresAt pgtype.Timestamptz `json:"refreshTokenExpiresAt"`
+	Scope                 *string            `json:"scope"`
+	Password              *string            `json:"password"`
+	CreatedAt             pgtype.Timestamptz `json:"createdAt"`
+	UpdatedAt             pgtype.Timestamptz `json:"updatedAt"`
 }
 
 type Anime struct {
-	ID        pgtype.UUID
-	Name      string
-	AnilistId int32
+	ID        pgtype.UUID `json:"id"`
+	Name      string      `json:"name"`
+	AnilistId int32       `json:"anilistId"`
 }
 
 type AnimeCharacter struct {
-	AnimeId     pgtype.UUID
-	CharacterId pgtype.UUID
+	AnimeId     pgtype.UUID `json:"animeId"`
+	CharacterId pgtype.UUID `json:"characterId"`
 }
 
 type Character struct {
-	ID          pgtype.UUID
-	Image       string
-	Name        string
-	AnilistId   int32
-	BirthYear   *int32
-	BirthMonth  *int32
-	BirthDay    *int32
-	BloodType   *string
-	Age         *string
-	Description *string
-	Gender      *string
+	ID          pgtype.UUID `json:"id"`
+	Image       string      `json:"image"`
+	Name        string      `json:"name"`
+	AnilistId   int32       `json:"anilistId"`
+	BirthYear   *int32      `json:"birthYear"`
+	BirthMonth  *int32      `json:"birthMonth"`
+	BirthDay    *int32      `json:"birthDay"`
+	BloodType   *string     `json:"bloodType"`
+	Age         *string     `json:"age"`
+	Description *string     `json:"description"`
+	Gender      *string     `json:"gender"`
 }
 
 type Jwk struct {
-	ID         string
-	PublicKey  string
-	PrivateKey string
-	CreatedAt  pgtype.Timestamptz
-	ExpiresAt  pgtype.Timestamptz
+	ID         string             `json:"id"`
+	PublicKey  string             `json:"publicKey"`
+	PrivateKey string             `json:"privateKey"`
+	CreatedAt  pgtype.Timestamptz `json:"createdAt"`
+	ExpiresAt  pgtype.Timestamptz `json:"expiresAt"`
 }
 
 type Session struct {
-	ID        string
-	ExpiresAt pgtype.Timestamptz
-	Token     string
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
-	IpAddress *string
-	UserAgent *string
-	UserId    string
+	ID        string             `json:"id"`
+	ExpiresAt pgtype.Timestamptz `json:"expiresAt"`
+	Token     string             `json:"token"`
+	CreatedAt pgtype.Timestamptz `json:"createdAt"`
+	UpdatedAt pgtype.Timestamptz `json:"updatedAt"`
+	IpAddress *string            `json:"ipAddress"`
+	UserAgent *string            `json:"userAgent"`
+	UserId    string             `json:"userId"`
 }
 
 type User struct {
-	ID              string
-	Name            string
-	Email           string
-	EmailVerified   bool
-	Image           *string
-	CreatedAt       pgtype.Timestamptz
-	UpdatedAt       pgtype.Timestamptz
-	Username        *string
-	DisplayUsername *string
+	ID              string             `json:"id"`
+	Name            string             `json:"name"`
+	Email           string             `json:"email"`
+	EmailVerified   bool               `json:"emailVerified"`
+	Image           *string            `json:"image"`
+	CreatedAt       pgtype.Timestamptz `json:"createdAt"`
+	UpdatedAt       pgtype.Timestamptz `json:"updatedAt"`
+	Username        *string            `json:"username"`
+	DisplayUsername *string            `json:"displayUsername"`
 }
 
 type Verification struct {
-	ID         string
-	Identifier string
-	Value      string
-	ExpiresAt  pgtype.Timestamptz
-	CreatedAt  pgtype.Timestamptz
-	UpdatedAt  pgtype.Timestamptz
+	ID         string             `json:"id"`
+	Identifier string             `json:"identifier"`
+	Value      string             `json:"value"`
+	ExpiresAt  pgtype.Timestamptz `json:"expiresAt"`
+	CreatedAt  pgtype.Timestamptz `json:"createdAt"`
+	UpdatedAt  pgtype.Timestamptz `json:"updatedAt"`
 }

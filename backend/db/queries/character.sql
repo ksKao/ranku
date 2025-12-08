@@ -25,3 +25,11 @@ select * from "anime_character" where "animeId" = $1 and "characterId" = $2 limi
 
 -- name: LinkCharacterToAnime :exec
 insert into "anime_character" ("animeId", "characterId") values ($1, $2);
+
+-- name: SearchCharacter :many
+select "character".*, "anime"."name" as "anime"
+from
+    "character"
+    join "anime_character" on "anime_character"."characterId" = "character"."id"
+    join "anime" on "anime"."id" = "anime_character"."animeId"
+where "anime"."name" ilike $1 or "character"."name" ilike $1;

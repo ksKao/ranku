@@ -29,16 +29,16 @@ values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning id, image, name, "ani
 `
 
 type CreateCharacterParams struct {
-	Image       string
-	Name        string
-	AnilistId   int32
-	BirthYear   *int32
-	BirthMonth  *int32
-	BirthDay    *int32
-	BloodType   *string
-	Age         *string
-	Description *string
-	Gender      *string
+	Image       string  `json:"image"`
+	Name        string  `json:"name"`
+	AnilistId   int32   `json:"anilistId"`
+	BirthYear   *int32  `json:"birthYear"`
+	BirthMonth  *int32  `json:"birthMonth"`
+	BirthDay    *int32  `json:"birthDay"`
+	BloodType   *string `json:"bloodType"`
+	Age         *string `json:"age"`
+	Description *string `json:"description"`
+	Gender      *string `json:"gender"`
 }
 
 func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams) (Character, error) {
@@ -76,8 +76,8 @@ select "animeId", "characterId" from "anime_character" where "animeId" = $1 and 
 `
 
 type GetAnimeCharacterRelationByIdsParams struct {
-	AnimeId     pgtype.UUID
-	CharacterId pgtype.UUID
+	AnimeId     pgtype.UUID `json:"animeId"`
+	CharacterId pgtype.UUID `json:"characterId"`
 }
 
 func (q *Queries) GetAnimeCharacterRelationByIds(ctx context.Context, arg GetAnimeCharacterRelationByIdsParams) (AnimeCharacter, error) {
@@ -115,8 +115,8 @@ insert into "anime_character" ("animeId", "characterId") values ($1, $2)
 `
 
 type LinkCharacterToAnimeParams struct {
-	AnimeId     pgtype.UUID
-	CharacterId pgtype.UUID
+	AnimeId     pgtype.UUID `json:"animeId"`
+	CharacterId pgtype.UUID `json:"characterId"`
 }
 
 func (q *Queries) LinkCharacterToAnime(ctx context.Context, arg LinkCharacterToAnimeParams) error {
@@ -124,21 +124,78 @@ func (q *Queries) LinkCharacterToAnime(ctx context.Context, arg LinkCharacterToA
 	return err
 }
 
+const searchCharacter = `-- name: SearchCharacter :many
+select character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender, "anime"."name" as "anime"
+from
+    "character"
+    join "anime_character" on "anime_character"."characterId" = "character"."id"
+    join "anime" on "anime"."id" = "anime_character"."animeId"
+where "anime"."name" ilike $1 or "character"."name" ilike $1
+`
+
+type SearchCharacterRow struct {
+	ID          pgtype.UUID `json:"id"`
+	Image       string      `json:"image"`
+	Name        string      `json:"name"`
+	AnilistId   int32       `json:"anilistId"`
+	BirthYear   *int32      `json:"birthYear"`
+	BirthMonth  *int32      `json:"birthMonth"`
+	BirthDay    *int32      `json:"birthDay"`
+	BloodType   *string     `json:"bloodType"`
+	Age         *string     `json:"age"`
+	Description *string     `json:"description"`
+	Gender      *string     `json:"gender"`
+	Anime       string      `json:"anime"`
+}
+
+func (q *Queries) SearchCharacter(ctx context.Context, name string) ([]SearchCharacterRow, error) {
+	rows, err := q.db.Query(ctx, searchCharacter, name)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchCharacterRow
+	for rows.Next() {
+		var i SearchCharacterRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Image,
+			&i.Name,
+			&i.AnilistId,
+			&i.BirthYear,
+			&i.BirthMonth,
+			&i.BirthDay,
+			&i.BloodType,
+			&i.Age,
+			&i.Description,
+			&i.Gender,
+			&i.Anime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateCharacterById = `-- name: UpdateCharacterById :exec
 update "character" set "image" = $1, "name" = $2, "birthYear" = $3, "birthMonth" = $4, "birthDay" = $5, "bloodType" = $6, "age" = $7, "description" = $8, "gender" = $9 where "id" = $10
 `
 
 type UpdateCharacterByIdParams struct {
-	Image       string
-	Name        string
-	BirthYear   *int32
-	BirthMonth  *int32
-	BirthDay    *int32
-	BloodType   *string
-	Age         *string
-	Description *string
-	Gender      *string
-	ID          pgtype.UUID
+	Image       string      `json:"image"`
+	Name        string      `json:"name"`
+	BirthYear   *int32      `json:"birthYear"`
+	BirthMonth  *int32      `json:"birthMonth"`
+	BirthDay    *int32      `json:"birthDay"`
+	BloodType   *string     `json:"bloodType"`
+	Age         *string     `json:"age"`
+	Description *string     `json:"description"`
+	Gender      *string     `json:"gender"`
+	ID          pgtype.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateCharacterById(ctx context.Context, arg UpdateCharacterByIdParams) error {
