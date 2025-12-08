@@ -25,6 +25,7 @@ func main() {
 	})
 
 	r.Mount("/characters", routes.CharactersRouter())
+	r.Mount("/votes", routes.VotesRouter())
 
 	log.Println("Server listening on 4000")
 	http.ListenAndServe(":4000", r)

@@ -90,7 +90,7 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(results) == 0 {
-		w.WriteHeader(http.StatusNotFound)
+		http.Error(w, "", http.StatusNotFound)
 		return
 	}
 

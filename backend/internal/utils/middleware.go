@@ -13,20 +13,20 @@ func AuthedMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		env, err := GetEnv()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
+			http.Error(w, "", http.StatusForbidden)
 			return
 		}
 
 		keyset, err := jwk.Fetch(r.Context(), fmt.Sprintf("%s/api/auth/jwks", env.FRONTEND_URL))
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
+			http.Error(w, "", http.StatusForbidden)
 			return
 		}
 
 		token, err := jwt.ParseRequest(r, jwt.WithKeySet(keyset))
 
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusForbidden)
+			http.Error(w, "", http.StatusForbidden)
 			return
 		}
 
