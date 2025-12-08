@@ -5,6 +5,7 @@
 package repositories
 
 import (
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -25,28 +26,28 @@ type Account struct {
 }
 
 type Anime struct {
-	ID        pgtype.UUID `json:"id"`
-	Name      string      `json:"name"`
-	AnilistId int32       `json:"anilistId"`
+	ID        uuid.UUID `json:"id"`
+	Name      string    `json:"name"`
+	AnilistId int32     `json:"anilistId"`
 }
 
 type AnimeCharacter struct {
-	AnimeId     pgtype.UUID `json:"animeId"`
-	CharacterId pgtype.UUID `json:"characterId"`
+	AnimeId     uuid.UUID `json:"animeId"`
+	CharacterId uuid.UUID `json:"characterId"`
 }
 
 type Character struct {
-	ID          pgtype.UUID `json:"id"`
-	Image       string      `json:"image"`
-	Name        string      `json:"name"`
-	AnilistId   int32       `json:"anilistId"`
-	BirthYear   *int32      `json:"birthYear"`
-	BirthMonth  *int32      `json:"birthMonth"`
-	BirthDay    *int32      `json:"birthDay"`
-	BloodType   *string     `json:"bloodType"`
-	Age         *string     `json:"age"`
-	Description *string     `json:"description"`
-	Gender      *string     `json:"gender"`
+	ID          uuid.UUID `json:"id"`
+	Image       string    `json:"image"`
+	Name        string    `json:"name"`
+	AnilistId   int32     `json:"anilistId"`
+	BirthYear   *int32    `json:"birthYear"`
+	BirthMonth  *int32    `json:"birthMonth"`
+	BirthDay    *int32    `json:"birthDay"`
+	BloodType   *string   `json:"bloodType"`
+	Age         *string   `json:"age"`
+	Description *string   `json:"description"`
+	Gender      *string   `json:"gender"`
 }
 
 type Jwk struct {
@@ -87,4 +88,11 @@ type Verification struct {
 	ExpiresAt  pgtype.Timestamptz `json:"expiresAt"`
 	CreatedAt  pgtype.Timestamptz `json:"createdAt"`
 	UpdatedAt  pgtype.Timestamptz `json:"updatedAt"`
+}
+
+type Vote struct {
+	UserId             string             `json:"userId"`
+	ForCharacterId     uuid.UUID          `json:"forCharacterId"`
+	AgainstCharacterId uuid.UUID          `json:"againstCharacterId"`
+	DateTime           pgtype.Timestamptz `json:"dateTime"`
 }

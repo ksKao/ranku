@@ -23,11 +23,9 @@ create table "character" (
 );
 
 create table "anime_character" (
-    "animeId" uuid not null,
-    "characterId" uuid not null,
-    primary key ("animeId", "characterId"),
-    foreign key ("animeId") references "anime" ("id") on delete cascade,
-    foreign key ("characterId") references "character" ("id") on delete cascade
+    "animeId" uuid not null references "anime" ("id") on delete cascade,
+    "characterId" uuid not null references "character" ("id") on delete cascade,
+    primary key ("animeId", "characterId")
 );
 -- +goose StatementEnd
 

@@ -8,7 +8,7 @@ package repositories
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createAnime = `-- name: CreateAnime :one
@@ -43,8 +43,8 @@ update "anime" set "name" = $1 where "anime"."id" = $2 returning id, name, "anil
 `
 
 type UpdateAnimeNameByIdParams struct {
-	Name string      `json:"name"`
-	ID   pgtype.UUID `json:"id"`
+	Name string    `json:"name"`
+	ID   uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateAnimeNameById(ctx context.Context, arg UpdateAnimeNameByIdParams) (Anime, error) {

@@ -33,3 +33,11 @@ from
     join "anime_character" on "anime_character"."characterId" = "character"."id"
     join "anime" on "anime"."id" = "anime_character"."animeId"
 where "anime"."name" ilike $1 or "character"."name" ilike $1;
+
+-- name: GetCharacterById :many
+select "character".*, "anime"."name" as "anime"
+from
+    "character"
+    join "anime_character" on "anime_character"."characterId" = "character"."id"
+    join "anime" on "anime"."id" = "anime_character"."animeId"
+where "character"."id" = $1;
