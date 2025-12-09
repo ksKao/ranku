@@ -147,13 +147,36 @@ func (q *Queries) GetCharacterByAnilistId(ctx context.Context, anilistid int32) 
 }
 
 const getCharacterById = `-- name: GetCharacterById :many
-select character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender, "anime"."name" as "anime"
+select
+    character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender,
+    "anime"."name" as "anime",
+    count("like"."userId") as "likes",
+    case
+        when exists (
+            select 1
+            from "like"
+            where
+                "like"."characterId" = "character"."id"
+                and "like"."userId" = $2::text
+        ) then true
+        else false
+    end as "liked"
 from
     "character"
     join "anime_character" on "anime_character"."characterId" = "character"."id"
     join "anime" on "anime"."id" = "anime_character"."animeId"
-where "character"."id" = $1
+    left join "like" on "like"."characterId" = "character"."id"
+where
+    "character"."id" = $1
+group by
+    "character"."id",
+    "anime"."id"
 `
+
+type GetCharacterByIdParams struct {
+	ID     uuid.UUID `json:"id"`
+	UserId *string   `json:"userId"`
+}
 
 type GetCharacterByIdRow struct {
 	ID          uuid.UUID `json:"id"`
@@ -168,10 +191,12 @@ type GetCharacterByIdRow struct {
 	Description *string   `json:"description"`
 	Gender      *string   `json:"gender"`
 	Anime       string    `json:"anime"`
+	Likes       int64     `json:"likes"`
+	Liked       bool      `json:"liked"`
 }
 
-func (q *Queries) GetCharacterById(ctx context.Context, id uuid.UUID) ([]GetCharacterByIdRow, error) {
-	rows, err := q.db.Query(ctx, getCharacterById, id)
+func (q *Queries) GetCharacterById(ctx context.Context, arg GetCharacterByIdParams) ([]GetCharacterByIdRow, error) {
+	rows, err := q.db.Query(ctx, getCharacterById, arg.ID, arg.UserId)
 	if err != nil {
 		return nil, err
 	}
@@ -192,6 +217,8 @@ func (q *Queries) GetCharacterById(ctx context.Context, id uuid.UUID) ([]GetChar
 			&i.Description,
 			&i.Gender,
 			&i.Anime,
+			&i.Likes,
+			&i.Liked,
 		); err != nil {
 			return nil, err
 		}

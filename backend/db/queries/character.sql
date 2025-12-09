@@ -35,12 +35,30 @@ from
 where "anime"."name" ilike $1 or "character"."name" ilike $1;
 
 -- name: GetCharacterById :many
-select "character".*, "anime"."name" as "anime"
+select
+    "character".*,
+    "anime"."name" as "anime",
+    count("like"."userId") as "likes",
+    case
+        when exists (
+            select 1
+            from "like"
+            where
+                "like"."characterId" = "character"."id"
+                and "like"."userId" = sqlc.narg('userId')::text
+        ) then true
+        else false
+    end as "liked"
 from
     "character"
     join "anime_character" on "anime_character"."characterId" = "character"."id"
     join "anime" on "anime"."id" = "anime_character"."animeId"
-where "character"."id" = $1;
+    left join "like" on "like"."characterId" = "character"."id"
+where
+    "character"."id" = $1
+group by
+    "character"."id",
+    "anime"."id";
 
 -- name: GetAllCharactersByRandomOrder :many
 select * from "character" order by random();

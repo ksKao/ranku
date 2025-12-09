@@ -58,6 +58,11 @@ type Jwk struct {
 	ExpiresAt  pgtype.Timestamptz `json:"expiresAt"`
 }
 
+type Like struct {
+	UserId      string    `json:"userId"`
+	CharacterId uuid.UUID `json:"characterId"`
+}
+
 type Session struct {
 	ID        string             `json:"id"`
 	ExpiresAt pgtype.Timestamptz `json:"expiresAt"`

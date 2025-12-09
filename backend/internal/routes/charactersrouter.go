@@ -80,8 +80,18 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var userIdNullable *string = nil
+	userId, exists := utils.TryGetUserIdFromRequest(r)
+
+	if exists {
+		userIdNullable = &userId
+	}
+
 	q := repositories.New(conn)
-	results, err := q.GetCharacterById(ctx, uuid)
+	results, err := q.GetCharacterById(ctx, repositories.GetCharacterByIdParams{
+		ID:     uuid,
+		UserId: userIdNullable,
+	})
 
 	if err != nil {
 		utils.LogError(err)
@@ -94,14 +104,16 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type characterWithAnime struct {
+	type response struct {
 		repositories.Character
 		Animes []string `json:"animes"`
+		Likes  int64
+		Liked  bool
 	}
 
 	firstResult := results[0]
 
-	response := characterWithAnime{
+	output := response{
 		Character: repositories.Character{
 			ID:          firstResult.ID,
 			Image:       firstResult.Image,
@@ -116,11 +128,13 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 			Gender:      firstResult.Description,
 		},
 		Animes: []string{},
+		Likes:  firstResult.Likes,
+		Liked:  firstResult.Liked,
 	}
 
 	for _, character := range results {
-		response.Animes = append(response.Animes, character.Anime)
+		output.Animes = append(output.Animes, character.Anime)
 	}
 
-	render.JSON(w, r, response)
+	render.JSON(w, r, output)
 }

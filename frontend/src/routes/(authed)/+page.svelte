@@ -4,31 +4,26 @@
 	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
-	const session = authClient.useSession();
 </script>
 
 <div>
-	{#if $session.isPending || $session.isRefetching}
-		<p>Loading</p>
-	{:else}
-		<div>
-			<p>
-				Name: {data.user.name}
-			</p>
-			<p>
-				ID: {data.user.id}
-			</p>
-			<p>
-				JWT: {data.token}
-			</p>
-			<button
-				onclick={async () => {
-					await authClient.signOut();
-					await goto('/login');
-				}}
-			>
-				Sign Out
-			</button>
-		</div>
-	{/if}
+	<div>
+		<p>
+			Name: {data.user.name}
+		</p>
+		<p>
+			ID: {data.user.id}
+		</p>
+		<p>
+			JWT: {data.token}
+		</p>
+		<button
+			onclick={async () => {
+				await authClient.signOut();
+				await goto('/login');
+			}}
+		>
+			Sign Out
+		</button>
+	</div>
 </div>

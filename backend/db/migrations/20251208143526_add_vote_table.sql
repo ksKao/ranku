@@ -15,5 +15,5 @@ create table "vote" (
 
 -- +goose Down
 -- +goose StatementBegin
-drop table "vote"
+drop table if exists "vote" cascade;
 -- +goose StatementEnd
