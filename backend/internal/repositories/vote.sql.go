@@ -26,31 +26,24 @@ func (q *Queries) CreateVote(ctx context.Context, arg CreateVoteParams) error {
 	return err
 }
 
-const getRecent10VotesByUserId = `-- name: GetRecent10VotesByUserId :many
-select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "votes" where "userId" = $1 order by "dateTime" desc limit 10
+const getVote = `-- name: GetVote :one
+select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "votes" where "userId" = $1 and (("forCharacterId" = $2 and "againstCharacterId" = $3) or ("forChracterId" = $3 and "andCharacterId" = $2)) limit 1
 `
 
-func (q *Queries) GetRecent10VotesByUserId(ctx context.Context, userid string) ([]Vote, error) {
-	rows, err := q.db.Query(ctx, getRecent10VotesByUserId, userid)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Vote
-	for rows.Next() {
-		var i Vote
-		if err := rows.Scan(
-			&i.UserId,
-			&i.ForCharacterId,
-			&i.AgainstCharacterId,
-			&i.DateTime,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type GetVoteParams struct {
+	UserId             string    `json:"userId"`
+	ForCharacterId     uuid.UUID `json:"forCharacterId"`
+	AgainstCharacterId uuid.UUID `json:"againstCharacterId"`
+}
+
+func (q *Queries) GetVote(ctx context.Context, arg GetVoteParams) (Vote, error) {
+	row := q.db.QueryRow(ctx, getVote, arg.UserId, arg.ForCharacterId, arg.AgainstCharacterId)
+	var i Vote
+	err := row.Scan(
+		&i.UserId,
+		&i.ForCharacterId,
+		&i.AgainstCharacterId,
+		&i.DateTime,
+	)
+	return i, err
 }

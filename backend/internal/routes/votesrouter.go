@@ -72,7 +72,16 @@ func createVote(w http.ResponseWriter, r *http.Request) {
 
 	q := repositories.New(conn)
 
-	// TODO: limit 10 votes per day and check for same votes
+	existingVote, _ := q.GetVote(ctx, repositories.GetVoteParams{
+		UserId:             user.ID,
+		ForCharacterId:     forUuid,
+		AgainstCharacterId: againstUuid,
+	})
+
+	if existingVote.UserId != "" {
+		http.Error(w, "You have already voted for this combination", http.StatusBadRequest)
+		return
+	}
 
 	err = q.CreateVote(ctx, repositories.CreateVoteParams{
 		UserId:             user.ID,
