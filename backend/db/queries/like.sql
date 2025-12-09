@@ -9,3 +9,13 @@ from
     join "anime_character" on "anime_character"."characterId" = "character"."id"
     join "anime" on "anime_character"."animeId" = "anime"."id"
 where "like"."userId" = $1;
+
+-- name: CheckLikeExists :one
+select exists (
+    select 1 
+    from "like"
+    where "userId" = $1 and "characterId" = $2
+);
+
+-- name: DeleteLike :exec
+delete from "like" where "userId" = $1 and "characterId" = $2;

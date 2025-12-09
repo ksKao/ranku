@@ -11,6 +11,26 @@ import (
 	"github.com/google/uuid"
 )
 
+const checkLikeExists = `-- name: CheckLikeExists :one
+select exists (
+    select 1 
+    from "like"
+    where "userId" = $1 and "characterId" = $2
+)
+`
+
+type CheckLikeExistsParams struct {
+	UserId      string    `json:"userId"`
+	CharacterId uuid.UUID `json:"characterId"`
+}
+
+func (q *Queries) CheckLikeExists(ctx context.Context, arg CheckLikeExistsParams) (bool, error) {
+	row := q.db.QueryRow(ctx, checkLikeExists, arg.UserId, arg.CharacterId)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
 const createLike = `-- name: CreateLike :exec
 insert into "like" ("userId", "characterId") values ($1, $2)
 `
@@ -22,6 +42,20 @@ type CreateLikeParams struct {
 
 func (q *Queries) CreateLike(ctx context.Context, arg CreateLikeParams) error {
 	_, err := q.db.Exec(ctx, createLike, arg.UserId, arg.CharacterId)
+	return err
+}
+
+const deleteLike = `-- name: DeleteLike :exec
+delete from "like" where "userId" = $1 and "characterId" = $2
+`
+
+type DeleteLikeParams struct {
+	UserId      string    `json:"userId"`
+	CharacterId uuid.UUID `json:"characterId"`
+}
+
+func (q *Queries) DeleteLike(ctx context.Context, arg DeleteLikeParams) error {
+	_, err := q.db.Exec(ctx, deleteLike, arg.UserId, arg.CharacterId)
 	return err
 }
 
