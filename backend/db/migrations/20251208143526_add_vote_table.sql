@@ -1,6 +1,6 @@
 -- +goose Up
 -- +goose StatementBegin
-create table "votes" (
+create table "vote" (
     "userId" text not null references "user" ("id") on delete cascade,
     "forCharacterId" uuid not null references "character" ("id") on delete cascade,
     "againstCharacterId" uuid not null references "character" ("id") on delete cascade,
@@ -15,5 +15,5 @@ create table "votes" (
 
 -- +goose Down
 -- +goose StatementBegin
-drop table "votes"
+drop table "vote"
 -- +goose StatementEnd

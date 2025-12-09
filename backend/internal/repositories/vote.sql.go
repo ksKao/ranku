@@ -12,7 +12,7 @@ import (
 )
 
 const createVote = `-- name: CreateVote :exec
-insert into "votes" ("userId", "forCharacterId", "againstCharacterId") values ($1, $2, $3)
+insert into "vote" ("userId", "forCharacterId", "againstCharacterId") values ($1, $2, $3)
 `
 
 type CreateVoteParams struct {
@@ -26,18 +26,18 @@ func (q *Queries) CreateVote(ctx context.Context, arg CreateVoteParams) error {
 	return err
 }
 
-const getVote = `-- name: GetVote :one
-select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "votes" where "userId" = $1 and (("forCharacterId" = $2 and "againstCharacterId" = $3) or ("forChracterId" = $3 and "andCharacterId" = $2)) limit 1
+const getUserVoteWithCharacterIds = `-- name: GetUserVoteWithCharacterIds :one
+select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "vote" where "userId" = $1 and (("forCharacterId" = $2 and "againstCharacterId" = $3) or ("forChracterId" = $3 and "andCharacterId" = $2)) limit 1
 `
 
-type GetVoteParams struct {
+type GetUserVoteWithCharacterIdsParams struct {
 	UserId             string    `json:"userId"`
 	ForCharacterId     uuid.UUID `json:"forCharacterId"`
 	AgainstCharacterId uuid.UUID `json:"againstCharacterId"`
 }
 
-func (q *Queries) GetVote(ctx context.Context, arg GetVoteParams) (Vote, error) {
-	row := q.db.QueryRow(ctx, getVote, arg.UserId, arg.ForCharacterId, arg.AgainstCharacterId)
+func (q *Queries) GetUserVoteWithCharacterIds(ctx context.Context, arg GetUserVoteWithCharacterIdsParams) (Vote, error) {
+	row := q.db.QueryRow(ctx, getUserVoteWithCharacterIds, arg.UserId, arg.ForCharacterId, arg.AgainstCharacterId)
 	var i Vote
 	err := row.Scan(
 		&i.UserId,
@@ -46,4 +46,33 @@ func (q *Queries) GetVote(ctx context.Context, arg GetVoteParams) (Vote, error) 
 		&i.DateTime,
 	)
 	return i, err
+}
+
+const getUserVotes = `-- name: GetUserVotes :many
+select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "vote" where "userId" = $1
+`
+
+func (q *Queries) GetUserVotes(ctx context.Context, userid string) ([]Vote, error) {
+	rows, err := q.db.Query(ctx, getUserVotes, userid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Vote
+	for rows.Next() {
+		var i Vote
+		if err := rows.Scan(
+			&i.UserId,
+			&i.ForCharacterId,
+			&i.AgainstCharacterId,
+			&i.DateTime,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }

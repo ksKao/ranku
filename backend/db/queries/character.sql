@@ -41,3 +41,6 @@ from
     join "anime_character" on "anime_character"."characterId" = "character"."id"
     join "anime" on "anime"."id" = "anime_character"."animeId"
 where "character"."id" = $1;
+
+-- name: GetAllCharactersByRandomOrder :many
+select * from "character" order by random();

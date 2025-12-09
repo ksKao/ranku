@@ -71,6 +71,42 @@ func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams
 	return i, err
 }
 
+const getAllCharactersByRandomOrder = `-- name: GetAllCharactersByRandomOrder :many
+select id, image, name, "anilistId", "birthYear", "birthMonth", "birthDay", "bloodType", age, description, gender from "character" order by random()
+`
+
+func (q *Queries) GetAllCharactersByRandomOrder(ctx context.Context) ([]Character, error) {
+	rows, err := q.db.Query(ctx, getAllCharactersByRandomOrder)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Character
+	for rows.Next() {
+		var i Character
+		if err := rows.Scan(
+			&i.ID,
+			&i.Image,
+			&i.Name,
+			&i.AnilistId,
+			&i.BirthYear,
+			&i.BirthMonth,
+			&i.BirthDay,
+			&i.BloodType,
+			&i.Age,
+			&i.Description,
+			&i.Gender,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAnimeCharacterRelationByIds = `-- name: GetAnimeCharacterRelationByIds :one
 select "animeId", "characterId" from "anime_character" where "animeId" = $1 and "characterId" = $2 limit 1
 `
