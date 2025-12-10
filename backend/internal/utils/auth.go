@@ -11,10 +11,7 @@ import (
 )
 
 func TryGetUserIdFromRequest(r *http.Request) (string, bool) {
-	env, err := GetEnv()
-	if err != nil {
-		return "", false
-	}
+	env := GetEnv()
 
 	keyset, err := jwk.Fetch(r.Context(), fmt.Sprintf("%s/api/auth/jwks", env.FRONTEND_URL))
 	if err != nil {

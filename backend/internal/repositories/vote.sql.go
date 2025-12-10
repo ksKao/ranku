@@ -26,6 +26,81 @@ func (q *Queries) CreateVote(ctx context.Context, arg CreateVoteParams) error {
 	return err
 }
 
+const getTop100VotedCharacters = `-- name: GetTop100VotedCharacters :many
+SELECT "character"."id", "character"."name", "character"."image", COALESCE(
+        SUM(
+            CASE
+                WHEN "vote"."forCharacterId" = "character"."id" THEN 1
+                ELSE 0
+            END
+        ), 0
+    ) AS for, COALESCE(
+        SUM(
+            CASE
+                WHEN "vote"."againstCharacterId" = "character"."id" THEN 1
+                ELSE 0
+            END
+        ), 0
+    ) AS against, COALESCE(
+        SUM(
+            CASE
+                WHEN "vote"."forCharacterId" = "character"."id" THEN 1
+                ELSE 0
+            END
+        ), 0
+    ) - COALESCE(
+        SUM(
+            CASE
+                WHEN "vote"."againstCharacterId" = "character"."id" THEN 1
+                ELSE 0
+            END
+        ), 0
+    ) AS score
+FROM "character"
+    LEFT JOIN "vote" ON "vote"."forCharacterId" = "character".id
+    OR "vote"."againstCharacterId" = "character"."id"
+GROUP BY
+    "character"."id"
+ORDER BY score DESC
+LIMIT 100
+`
+
+type GetTop100VotedCharactersRow struct {
+	ID      uuid.UUID   `json:"id"`
+	Name    string      `json:"name"`
+	Image   string      `json:"image"`
+	For     interface{} `json:"for"`
+	Against interface{} `json:"against"`
+	Score   int32       `json:"score"`
+}
+
+func (q *Queries) GetTop100VotedCharacters(ctx context.Context) ([]GetTop100VotedCharactersRow, error) {
+	rows, err := q.db.Query(ctx, getTop100VotedCharacters)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetTop100VotedCharactersRow
+	for rows.Next() {
+		var i GetTop100VotedCharactersRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Image,
+			&i.For,
+			&i.Against,
+			&i.Score,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserVoteWithCharacterIds = `-- name: GetUserVoteWithCharacterIds :one
 select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "vote" where "userId" = $1 and (("forCharacterId" = $2 and "againstCharacterId" = $3) or ("forChracterId" = $3 and "andCharacterId" = $2)) limit 1
 `

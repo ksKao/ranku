@@ -2,23 +2,28 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"ranku/internal/repositories"
 	"ranku/internal/services/anilist"
 	"ranku/internal/utils"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/go-co-op/gocron/v2"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
-func updateDbCache() {
+func updateAnimeCharacterCache() {
 	ctx := context.Background()
 
 	conn, err := utils.GetDbConnection(ctx)
 
 	if err != nil {
 		log.Printf("Error getting DB connection: %s", err.Error())
+		return
 	}
 
 	defer conn.Close()
@@ -32,7 +37,8 @@ func updateDbCache() {
 		topAnimes, err := anilist.GetAnilistTopAnimeWithCharacters(i)
 
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Printf("Error getting data from Anilist: %s", err.Error())
+			continue
 		}
 
 		log.Printf("Page %d returns %d result(s)", i, len(topAnimes.Data.Page.Media))
@@ -148,7 +154,89 @@ func updateDbCache() {
 		time.Sleep(5 * time.Second)
 	}
 
-	log.Printf("Finished")
+	log.Printf("Finished caching anime characters")
+}
+
+func updateRedisCache() {
+	log.Printf("Start updating redis cache")
+	ctx := context.Background()
+
+	dbConn, err := utils.GetDbConnection(ctx)
+
+	if err != nil {
+		log.Printf("Error getting DB connection: %s", err.Error())
+		return
+	}
+
+	defer dbConn.Close()
+
+	redisConn, err := utils.GetRedisConnection()
+	if err != nil {
+		log.Printf("Error getting Redis connection: %s", err.Error())
+		return
+	}
+
+	defer redisConn.Close()
+
+	q := repositories.New(dbConn)
+
+	characters, err := q.GetTop100VotedCharacters(ctx)
+
+	if err != nil {
+		log.Printf("Failed to get top 100 votes: %s", err.Error())
+		return
+	}
+
+	_, err = redisConn.FTInfo(ctx, utils.RedisScoreIndexName).Result()
+
+	if err != nil {
+		log.Printf("Index does not exist. Creating...")
+
+		_, err := redisConn.FTCreate(ctx, utils.RedisScoreIndexName, &redis.FTCreateOptions{
+			OnJSON: true,
+			Prefix: []any{"characters:"},
+		}, &redis.FieldSchema{
+			FieldName: "$.score",
+			As:        "score",
+			FieldType: redis.SearchFieldTypeNumeric,
+			Sortable:  true,
+		}).Result()
+
+		if err != nil {
+			log.Printf("Failed to create index: %s", err.Error())
+			return
+		}
+	}
+
+	// while not recommended in production, the entire database will not exceed 100 keys, which according to Redis:
+	// "Redis running on an entry level laptop can scan a 1 million key database in 40 milliseconds"
+	keys, err := redisConn.Keys(ctx, "*").Result()
+	if err != nil {
+		log.Printf("Failed to fetch keys: %s", err.Error())
+		return
+	}
+
+	for _, key := range keys {
+		// check if key is in top 100 votes, if no, remove it
+		hasKey := slices.ContainsFunc(characters, func(char repositories.GetTop100VotedCharactersRow) bool {
+			return char.ID.String() == strings.Split(key, ":")[1]
+		})
+
+		if !hasKey {
+			log.Printf("Character with ID %s fell off, deleting...", key)
+			_, err := redisConn.Del(ctx, key).Result()
+			if err != nil {
+				log.Printf("Failed to delete key: %s", err.Error())
+				continue
+			}
+		}
+	}
+
+	for _, character := range characters {
+		redisConn.JSONSet(ctx, fmt.Sprintf("characters:%s", character.ID.String()), "$", character)
+	}
+
+	log.Printf("Finished updating redis cache")
 }
 
 func main() {
@@ -168,12 +256,20 @@ func main() {
 		gocron.NewAtTimes(
 			gocron.NewAtTime(0, 0, 0),
 		),
-	), gocron.NewTask(updateDbCache))
+	), gocron.NewTask(updateAnimeCharacterCache))
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	log.Printf("Job %s created", job.ID().String())
+	log.Printf("Update anime character cache job %s created", job.ID().String())
+
+	// runs every 5 minutes
+	job, err = scheduler.NewJob(gocron.CronJob("*/5 * * * *", false), gocron.NewTask(updateRedisCache))
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	log.Printf("Update redis cache job %s created", job.ID().String())
 
 	scheduler.Start()
 
