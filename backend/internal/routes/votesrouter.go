@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"ranku/internal/repositories"
 	"ranku/internal/utils"
@@ -22,6 +23,70 @@ func VotesRouter() http.Handler {
 	r.Get("/matchup", getVoteMatchup)
 
 	return r
+}
+
+// no need to return error for this function, we don't care if the cache fails to update since it's gonna update within 5 minutes anyway by the cron
+func updateRedisVoteCache(forId string, againstId string) {
+	conn, err := utils.GetRedisConnection()
+
+	if err != nil {
+		log.Printf("Failed to get Redis connection: %s", err.Error())
+		return
+	}
+
+	ctx := context.Background()
+
+	forKey := fmt.Sprintf("characters:%s", forId)
+	forExists, err := conn.Exists(ctx, forKey).Result()
+
+	if err != nil {
+		log.Printf("Failed to check if for character ID exists: %s", err.Error())
+		return
+	}
+
+	if forExists == 1 {
+		log.Printf("Found for key. Updating...")
+
+		_, err = conn.JSONNumIncrBy(ctx, forKey, "$.score", 1).Result()
+
+		if err != nil {
+			log.Printf("Failed to increment score for character %s: %s", forId, err.Error())
+		}
+
+		_, err = conn.JSONNumIncrBy(ctx, forKey, "$.for", 1).Result()
+
+		if err != nil {
+			log.Printf("Failed to increment for vote for character %s: %s", forId, err.Error())
+		}
+	} else {
+		log.Printf("For key %s doesn't exist. Skipping...", forKey)
+	}
+
+	againstKey := fmt.Sprintf("characters:%s", againstId)
+	againstExists, err := conn.Exists(ctx, againstKey).Result()
+
+	if err != nil {
+		log.Printf("Failed to check if against character ID exists: %s", err.Error())
+		return
+	}
+
+	if againstExists == 1 {
+		log.Printf("Found against key. Updating...")
+
+		_, err = conn.JSONNumIncrBy(ctx, againstKey, "$.score", -1).Result()
+
+		if err != nil {
+			log.Printf("Failed to decrement score for character %s: %s", againstId, err.Error())
+		}
+
+		_, err = conn.JSONNumIncrBy(ctx, againstKey, "$.against", 1).Result()
+
+		if err != nil {
+			log.Printf("Failed to increment against vote for character %s: %s", againstId, err.Error())
+		}
+	} else {
+		log.Printf("Against key %s doesn't exist. Skipping...", againstKey)
+	}
 }
 
 func createVote(w http.ResponseWriter, r *http.Request) {
@@ -98,6 +163,9 @@ func createVote(w http.ResponseWriter, r *http.Request) {
 		utils.WriteGenericInternalServerError(w)
 		return
 	}
+
+	updateRedisVoteCache(forUuid.String(), againstUuid.String())
+	utils.BroadcastUpdate()
 
 	w.WriteHeader(http.StatusCreated)
 }

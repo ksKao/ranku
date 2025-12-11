@@ -102,7 +102,7 @@ func (q *Queries) GetTop100VotedCharacters(ctx context.Context) ([]GetTop100Vote
 }
 
 const getUserVoteWithCharacterIds = `-- name: GetUserVoteWithCharacterIds :one
-select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "vote" where "userId" = $1 and (("forCharacterId" = $2 and "againstCharacterId" = $3) or ("forChracterId" = $3 and "andCharacterId" = $2)) limit 1
+select "userId", "forCharacterId", "againstCharacterId", "dateTime" from "vote" where "userId" = $1 and (("forCharacterId" = $2 and "againstCharacterId" = $3) or ("forCharacterId" = $3 and "againstCharacterId" = $2)) limit 1
 `
 
 type GetUserVoteWithCharacterIdsParams struct {
