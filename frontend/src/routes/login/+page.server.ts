@@ -9,7 +9,7 @@ export const actions: Actions = {
 		const form = await superValidate(event, zod4(loginSchema));
 
 		if (!form.valid) {
-			return fail(400, { form, message: 'Invalid credentials' });
+			return fail(400, { form, message: 'Invalid input' });
 		}
 
 		try {

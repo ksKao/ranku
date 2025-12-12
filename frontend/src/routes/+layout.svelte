@@ -59,6 +59,7 @@
 		loginDialogOpen = open;
 	}}
 	loginForm={data.loginForm}
+	registerForm={data.registerForm}
 />
 <header class="sticky top-0 z-50 bg-background">
 	<div class="mx-auto flex w-full items-center justify-between gap-8 px-6 py-7 md:max-w-7xl">

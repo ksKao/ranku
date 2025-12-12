@@ -4,12 +4,14 @@
 	import * as Tabs from '$lib/components/ui/tabs/index';
 	import type { ComponentProps } from 'svelte';
 	import LoginForm from './login-form.svelte';
+	import RegisterForm from './register-form.svelte';
 
 	type Props = Pick<ComponentProps<typeof Dialog.Root>, 'open' | 'onOpenChange'> & {
 		loginForm: ComponentProps<typeof LoginForm>['form'];
+		registerForm: ComponentProps<typeof RegisterForm>['form'];
 	};
 
-	const { loginForm, ...props }: Props = $props();
+	const { loginForm, registerForm, ...props }: Props = $props();
 </script>
 
 <Dialog.Root {...props}>
@@ -26,7 +28,9 @@
 			<Tabs.Content value="sign-in">
 				<LoginForm form={loginForm} closeDialog={() => props.onOpenChange?.(false)} />
 			</Tabs.Content>
-			<Tabs.Content value="register"></Tabs.Content>
+			<Tabs.Content value="register">
+				<RegisterForm form={registerForm} closeDialog={() => props.onOpenChange?.(false)} />
+			</Tabs.Content>
 		</Tabs.Root>
 	</Dialog.Content>
 </Dialog.Root>
