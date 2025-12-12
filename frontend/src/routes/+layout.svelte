@@ -87,7 +87,10 @@
 						{#if 'text' in navItem}
 							{navItem.text}
 						{:else}
-							<img class="h-8 w-8" src={navItem.image} alt={navItem.alt} />
+							<div class="flex items-center gap-4 font-bold text-foreground">
+								<img class="h-8 w-8" src={navItem.image} alt={navItem.alt} />
+								<span>Ranku</span>
+							</div>
 						{/if}
 					</a>
 				{/each}
