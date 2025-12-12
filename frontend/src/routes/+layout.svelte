@@ -18,9 +18,9 @@
 	import './layout.css';
 	import LoginDialog from './login-dialog.svelte';
 	import ThemeSwitcher from './theme-switcher.svelte';
+	import { loginDialogState } from '$lib/states.svelte';
 
 	const { data, children }: LayoutProps = $props();
-	let loginDialogOpen = $state(false);
 
 	type NavItem = (
 		| {
@@ -34,7 +34,12 @@
 		{ text: 'Vote', link: '/vote' },
 		{ text: 'Search', onClick: () => {} },
 		{ image: favicon, alt: 'logo', link: '/' },
-		{ text: 'Profile', link: '/profile' },
+		{
+			text: 'Profile',
+			onClick: () => {
+				goto('/profile');
+			}
+		},
 		{
 			text: data.session ? 'Log Out' : 'Login',
 			onClick: async () => {
@@ -43,7 +48,7 @@
 					await invalidateAll();
 					toast.success('Logged out successfully');
 				} else {
-					loginDialogOpen = true;
+					loginDialogState.open = true;
 				}
 			}
 		}
@@ -56,14 +61,7 @@
 
 <ModeWatcher />
 <Toaster richColors position="top-center" />
-<LoginDialog
-	open={loginDialogOpen}
-	onOpenChange={(open) => {
-		loginDialogOpen = open;
-	}}
-	loginForm={data.loginForm}
-	registerForm={data.registerForm}
-/>
+<LoginDialog loginForm={data.loginForm} registerForm={data.registerForm} />
 <header class="sticky top-0 z-50 bg-background">
 	<div class="mx-auto flex w-full items-center justify-between gap-8 px-6 py-7 md:max-w-7xl">
 		<div

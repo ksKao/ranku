@@ -6,10 +6,10 @@
 	import { Input } from '$lib/components/ui/input';
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import { loginDialogState } from '$lib/states.svelte';
 
 	type Props = {
 		form: SuperValidated<Infer<RegisterSchema>>;
-		closeDialog: () => void;
 	};
 
 	const props: Props = $props();
@@ -19,7 +19,7 @@
 		onUpdate: async ({ result }) => {
 			if (result.type === 'success') {
 				await invalidateAll();
-				props.closeDialog();
+				loginDialogState.open = false;
 				toast.success('Account registered');
 			} else if (result.type === 'failure') {
 				if ('message' in result.data) toast.error(result.data.message);

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import Button from '$lib/components/ui/button/button.svelte';
 	import * as Dialog from '$lib/components/ui/dialog/index';
 	import * as Tabs from '$lib/components/ui/tabs/index';
 	import type { ComponentProps } from 'svelte';
 	import LoginForm from './login-form.svelte';
 	import RegisterForm from './register-form.svelte';
+	import { loginDialogState } from '$lib/states.svelte';
 
-	type Props = Pick<ComponentProps<typeof Dialog.Root>, 'open' | 'onOpenChange'> & {
+	type Props = {
 		loginForm: ComponentProps<typeof LoginForm>['form'];
 		registerForm: ComponentProps<typeof RegisterForm>['form'];
 	};
@@ -15,7 +15,7 @@
 	let selectedTab = $state('sign-in');
 </script>
 
-<Dialog.Root {...props}>
+<Dialog.Root open={loginDialogState.open} onOpenChange={(open) => (loginDialogState.open = open)}>
 	<Dialog.Content>
 		<Dialog.Header>
 			<Dialog.Title>{selectedTab === 'sign-in' ? 'Sign In' : 'Register'}</Dialog.Title>
@@ -31,10 +31,10 @@
 				<Tabs.Trigger value="register">Register</Tabs.Trigger>
 			</Tabs.List>
 			<Tabs.Content value="sign-in">
-				<LoginForm form={loginForm} closeDialog={() => props.onOpenChange?.(false)} />
+				<LoginForm form={loginForm} />
 			</Tabs.Content>
 			<Tabs.Content value="register">
-				<RegisterForm form={registerForm} closeDialog={() => props.onOpenChange?.(false)} />
+				<RegisterForm form={registerForm} />
 			</Tabs.Content>
 		</Tabs.Root>
 	</Dialog.Content>
