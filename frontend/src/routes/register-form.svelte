@@ -30,64 +30,66 @@
 	const { form: formData, enhance } = form;
 </script>
 
-<form method="POST" action="/register" class="space-y-4" use:enhance>
-	<Form.Field {form} name="email">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Email</Form.Label>
-				<Input
-					{...props}
-					bind:value={$formData.email}
-					placeholder="test@example.com"
-					autocomplete="email"
-				/>
-			{/snippet}
-		</Form.Control>
-		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Field {form} name="username">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Username</Form.Label>
-				<Input
-					{...props}
-					bind:value={$formData.username}
-					placeholder="Username"
-					autocomplete="username"
-				/>
-			{/snippet}
-		</Form.Control>
-		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Field {form} name="password">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Password</Form.Label>
-				<Input
-					{...props}
-					bind:value={$formData.password}
-					placeholder="●●●●●●●●"
-					type="password"
-					autocomplete="new-password"
-				/>
-			{/snippet}
-		</Form.Control>
-		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Field {form} name="confirmPassword">
-		<Form.Control>
-			{#snippet children({ props })}
-				<Form.Label>Confirm Password</Form.Label>
-				<Input
-					{...props}
-					bind:value={$formData.confirmPassword}
-					placeholder="●●●●●●●●"
-					type="password"
-					autocomplete="new-password"
-				/>
-			{/snippet}
-		</Form.Control>
-		<Form.FieldErrors />
-	</Form.Field>
-	<Form.Button class="w-full">Register</Form.Button>
+<form method="POST" action="/register" use:enhance>
+	<div class="my-4 space-y-4">
+		<Form.Field {form} name="email">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Form.Label>Email</Form.Label>
+					<Input
+						{...props}
+						bind:value={$formData.email}
+						placeholder="test@example.com"
+						autocomplete="email"
+					/>
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+		<Form.Field {form} name="username">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Form.Label>Username</Form.Label>
+					<Input
+						{...props}
+						bind:value={$formData.username}
+						placeholder="Username"
+						autocomplete="username"
+					/>
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+		<Form.Field {form} name="password">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Form.Label>Password</Form.Label>
+					<Input
+						{...props}
+						bind:value={$formData.password}
+						placeholder="●●●●●●●●"
+						type="password"
+						autocomplete="new-password"
+					/>
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+		<Form.Field {form} name="confirmPassword">
+			<Form.Control>
+				{#snippet children({ props })}
+					<Form.Label>Confirm Password</Form.Label>
+					<Input
+						{...props}
+						bind:value={$formData.confirmPassword}
+						placeholder="●●●●●●●●"
+						type="password"
+						autocomplete="new-password"
+					/>
+				{/snippet}
+			</Form.Control>
+			<Form.FieldErrors />
+		</Form.Field>
+	</div>
+	<Form.Button class="mt-4 w-full">Register</Form.Button>
 </form>

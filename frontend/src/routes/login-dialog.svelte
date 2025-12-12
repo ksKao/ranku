@@ -12,15 +12,20 @@
 	};
 
 	const { loginForm, registerForm, ...props }: Props = $props();
+	let selectedTab = $state('sign-in');
 </script>
 
 <Dialog.Root {...props}>
 	<Dialog.Content>
 		<Dialog.Header>
-			<Dialog.Title>Login</Dialog.Title>
-			<Dialog.Description>Login to your account</Dialog.Description>
+			<Dialog.Title>{selectedTab === 'sign-in' ? 'Sign In' : 'Register'}</Dialog.Title>
+			<Dialog.Description
+				>{selectedTab === 'sign-in'
+					? 'Login to your account'
+					: 'Register a new account'}</Dialog.Description
+			>
 		</Dialog.Header>
-		<Tabs.Root value="sign-in" class="w-full">
+		<Tabs.Root value={selectedTab} onValueChange={(val) => (selectedTab = val)} class="w-full">
 			<Tabs.List class="w-full">
 				<Tabs.Trigger value="sign-in">Sign In</Tabs.Trigger>
 				<Tabs.Trigger value="register">Register</Tabs.Trigger>
