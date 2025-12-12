@@ -37,7 +37,11 @@
 		{
 			text: 'Profile',
 			onClick: () => {
-				goto('/profile');
+				if (data.user) {
+					goto('/profile');
+				} else {
+					loginDialogState.open = true;
+				}
 			}
 		},
 		{
@@ -62,72 +66,75 @@
 <ModeWatcher />
 <Toaster richColors position="top-center" />
 <LoginDialog loginForm={data.loginForm} registerForm={data.registerForm} />
-<header class="sticky top-0 z-50 bg-background">
-	<div class="mx-auto flex w-full items-center justify-between gap-8 px-6 py-7 md:max-w-7xl">
-		<div
-			class="hidden flex-1 items-center gap-8 font-medium text-muted-foreground md:flex md:justify-center lg:gap-16"
-		>
-			{#each navItems as navItem}
-				<a
-					href={'link' in navItem ? navItem.link : ''}
-					class="hover:text-primary"
-					onclick={'onClick' in navItem
-						? (e) => {
-								e.preventDefault();
-								navItem.onClick();
-							}
-						: undefined}
-				>
-					{#if 'text' in navItem}
-						{navItem.text}
-					{:else}
-						<img class="h-8 w-8" src={navItem.image} alt={navItem.alt} />
-					{/if}
-				</a>
-			{/each}
-		</div>
 
-		<div class="mr-auto">
-			<DropdownMenu>
-				<DropdownMenuTrigger class="md:hidden">
-					{#snippet child({ props })}
-						<Button {...props} variant="outline" size="icon">
-							<MenuIcon />
-							<span class="sr-only">Menu</span>
-						</Button>
-					{/snippet}
-				</DropdownMenuTrigger>
-				<DropdownMenuContent class="w-48" align="start">
-					<DropdownMenuGroup>
-						<DropdownMenuItem
-							onSelect={() => {
-								goto('/');
-							}}
-						>
-							Home
-						</DropdownMenuItem>
-						{#each navItems as navItem}
-							{#if 'text' in navItem}
-								<DropdownMenuItem
-									onSelect={() => {
-										if ('link' in navItem) {
-											goto(navItem.link);
-										} else {
-											navItem.onClick();
-										}
-									}}
-								>
-									{navItem.text}
-								</DropdownMenuItem>
-							{/if}
-						{/each}
-					</DropdownMenuGroup>
-				</DropdownMenuContent>
-			</DropdownMenu>
+<main class="mx-auto flex h-screen w-screen flex-col px-6 md:max-w-7xl">
+	<header class="sticky top-0 z-50 bg-background">
+		<div class="flex w-full items-center justify-between gap-8 py-7">
+			<div
+				class="hidden flex-1 items-center gap-8 font-medium text-muted-foreground md:flex md:justify-center lg:gap-16"
+			>
+				{#each navItems as navItem}
+					<a
+						href={'link' in navItem ? navItem.link : ''}
+						class="hover:text-primary"
+						onclick={'onClick' in navItem
+							? (e) => {
+									e.preventDefault();
+									navItem.onClick();
+								}
+							: undefined}
+					>
+						{#if 'text' in navItem}
+							{navItem.text}
+						{:else}
+							<img class="h-8 w-8" src={navItem.image} alt={navItem.alt} />
+						{/if}
+					</a>
+				{/each}
+			</div>
+
+			<div class="mr-auto">
+				<DropdownMenu>
+					<DropdownMenuTrigger class="md:hidden">
+						{#snippet child({ props })}
+							<Button {...props} variant="outline" size="icon">
+								<MenuIcon />
+								<span class="sr-only">Menu</span>
+							</Button>
+						{/snippet}
+					</DropdownMenuTrigger>
+					<DropdownMenuContent class="w-48" align="start">
+						<DropdownMenuGroup>
+							<DropdownMenuItem
+								onSelect={() => {
+									goto('/');
+								}}
+							>
+								Home
+							</DropdownMenuItem>
+							{#each navItems as navItem}
+								{#if 'text' in navItem}
+									<DropdownMenuItem
+										onSelect={() => {
+											if ('link' in navItem) {
+												goto(navItem.link);
+											} else {
+												navItem.onClick();
+											}
+										}}
+									>
+										{navItem.text}
+									</DropdownMenuItem>
+								{/if}
+							{/each}
+						</DropdownMenuGroup>
+					</DropdownMenuContent>
+				</DropdownMenu>
+			</div>
+			<ThemeSwitcher />
 		</div>
-		<ThemeSwitcher />
-	</div>
-</header>
-<main class="mx-auto px-6 md:max-w-7xl">
-	{@render children()}
+	</header>
+	<main class="grow">
+		{@render children()}
+	</main>
 </main>
