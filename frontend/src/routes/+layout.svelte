@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { invalidateAll } from '$app/navigation';
+	import { goto, invalidateAll } from '$app/navigation';
 	import favicon from '$lib/assets/favicon.svg';
 	import { authClient } from '$lib/auth-client';
 	import { Button } from '$lib/components/ui/button';
@@ -10,12 +10,14 @@
 		DropdownMenuItem,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
+	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import { MenuIcon } from 'lucide-svelte';
+	import { ModeWatcher } from 'mode-watcher';
+	import { toast } from 'svelte-sonner';
 	import { type LayoutProps } from './$types';
 	import './layout.css';
 	import LoginDialog from './login-dialog.svelte';
-	import { Toaster } from '$lib/components/ui/sonner/index.js';
-	import { toast } from 'svelte-sonner';
+	import ThemeSwitcher from './theme-switcher.svelte';
 
 	const { data, children }: LayoutProps = $props();
 	let loginDialogOpen = $state(false);
@@ -52,6 +54,7 @@
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
+<ModeWatcher />
 <Toaster richColors position="top-center" />
 <LoginDialog
 	open={loginDialogOpen}
@@ -86,7 +89,7 @@
 			{/each}
 		</div>
 
-		<div class="ml-auto flex items-center gap-6">
+		<div class="mr-auto">
 			<DropdownMenu>
 				<DropdownMenuTrigger class="md:hidden">
 					{#snippet child({ props })}
@@ -96,13 +99,24 @@
 						</Button>
 					{/snippet}
 				</DropdownMenuTrigger>
-				<DropdownMenuContent class="w-48" align="end">
+				<DropdownMenuContent class="w-48" align="start">
 					<DropdownMenuGroup>
+						<DropdownMenuItem
+							onSelect={() => {
+								goto('/');
+							}}
+						>
+							Home
+						</DropdownMenuItem>
 						{#each navItems as navItem}
 							{#if 'text' in navItem}
 								<DropdownMenuItem
 									onSelect={() => {
-										console.log('selected');
+										if ('link' in navItem) {
+											goto(navItem.link);
+										} else {
+											navItem.onClick();
+										}
 									}}
 								>
 									{navItem.text}
@@ -113,8 +127,9 @@
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>
+		<ThemeSwitcher />
 	</div>
 </header>
-<main class="px-6">
+<main class="mx-auto px-6 md:max-w-7xl">
 	{@render children()}
 </main>
