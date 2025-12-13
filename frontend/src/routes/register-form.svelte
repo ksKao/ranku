@@ -1,12 +1,12 @@
 <script lang="ts">
+	import { invalidateAll } from '$app/navigation';
 	import * as Form from '$lib/components/ui/form/index';
+	import { Input } from '$lib/components/ui/input';
+	import { registerSchema, type RegisterSchema } from '$lib/schemas/register.schema';
+	import { loginDialogState } from '$lib/states.svelte';
+	import { toast } from 'svelte-sonner';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
-	import { loginSchema, registerSchema, type RegisterSchema } from './schema';
-	import { Input } from '$lib/components/ui/input';
-	import { invalidateAll } from '$app/navigation';
-	import { toast } from 'svelte-sonner';
-	import { loginDialogState } from '$lib/states.svelte';
 
 	type Props = {
 		form: SuperValidated<Infer<RegisterSchema>>;

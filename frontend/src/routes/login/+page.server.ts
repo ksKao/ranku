@@ -1,7 +1,7 @@
 import { fail, type Actions } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { loginSchema } from '../schema';
+import { loginSchema } from '$lib/schemas/login.schema';
 import { auth } from '$lib/auth';
 
 export const actions: Actions = {

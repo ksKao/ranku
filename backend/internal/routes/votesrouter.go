@@ -210,8 +210,8 @@ func getVoteMatchup(w http.ResponseWriter, r *http.Request) {
 	numberOfCombinations := (len(allCharacters) * (len(allCharacters) - 1)) / 2
 
 	type response struct {
-		Char1 *repositories.Character `json:"char1"`
-		Char2 *repositories.Character `json:"char2"`
+		Char1 *repositories.GetAllCharactersByRandomOrderRow `json:"char1"`
+		Char2 *repositories.GetAllCharactersByRandomOrderRow `json:"char2"`
 	}
 
 	output := response{
@@ -233,7 +233,7 @@ func getVoteMatchup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Find a valid matchup that hasn't been voted on yet
-	var char1, char2 *repositories.Character
+	var char1, char2 *repositories.GetAllCharactersByRandomOrderRow
 	var validMatchupFound bool
 
 	for i := 0; i < len(allCharacters)-1; i++ {

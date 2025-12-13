@@ -2,7 +2,7 @@
 	import * as Form from '$lib/components/ui/form/index';
 	import { superForm, type Infer, type SuperValidated } from 'sveltekit-superforms';
 	import { zod4Client } from 'sveltekit-superforms/adapters';
-	import { loginSchema, type LoginSchema } from './schema';
+	import { loginSchema, type LoginSchema } from '$lib/schemas/login.schema';
 	import { Input } from '$lib/components/ui/input';
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';

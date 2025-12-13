@@ -1,143 +1,38 @@
 <script lang="ts">
-	import { goto, invalidateAll } from '$app/navigation';
+	import { browser } from '$app/environment';
 	import favicon from '$lib/assets/favicon.svg';
-	import { authClient } from '$lib/auth-client';
-	import { Button } from '$lib/components/ui/button';
-	import {
-		DropdownMenu,
-		DropdownMenuContent,
-		DropdownMenuGroup,
-		DropdownMenuItem,
-		DropdownMenuTrigger
-	} from '$lib/components/ui/dropdown-menu';
+	import Navbar from '$lib/components/navbar/navbar.svelte';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
-	import { MenuIcon } from 'lucide-svelte';
+	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
 	import { ModeWatcher } from 'mode-watcher';
-	import { toast } from 'svelte-sonner';
 	import { type LayoutProps } from './$types';
 	import './layout.css';
 	import LoginDialog from './login-dialog.svelte';
-	import ThemeSwitcher from './theme-switcher.svelte';
-	import { loginDialogState } from '$lib/states.svelte';
 
 	const { data, children }: LayoutProps = $props();
 
-	type NavItem = (
-		| {
-				text: string;
-		  }
-		| { image: string; alt: string }
-	) &
-		({ link: string } | { onClick: () => void });
-
-	const navItems: NavItem[] = $derived([
-		{ text: 'Vote', link: '/vote' },
-		{ text: 'Search', onClick: () => {} },
-		{ image: favicon, alt: 'logo', link: '/' },
-		{
-			text: 'Profile',
-			onClick: () => {
-				if (data.user) {
-					goto('/profile');
-				} else {
-					loginDialogState.open = true;
-				}
-			}
-		},
-		{
-			text: data.session ? 'Log Out' : 'Login',
-			onClick: async () => {
-				if (data.session) {
-					await authClient.signOut();
-					await invalidateAll();
-					toast.success('Logged out successfully');
-				} else {
-					loginDialogState.open = true;
-				}
+	const queryClient = new QueryClient({
+		defaultOptions: {
+			queries: {
+				enabled: browser
 			}
 		}
-	]);
+	});
 </script>
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
 </svelte:head>
 
-<ModeWatcher />
-<Toaster richColors position="top-center" />
-<LoginDialog loginForm={data.loginForm} registerForm={data.registerForm} />
+<QueryClientProvider client={queryClient}>
+	<ModeWatcher />
+	<Toaster richColors position="top-center" />
+	<LoginDialog loginForm={data.loginForm} registerForm={data.registerForm} />
 
-<main class="mx-auto flex h-screen w-screen flex-col px-6 md:max-w-7xl">
-	<header class="sticky top-0 z-50 bg-background">
-		<div class="flex w-full items-center justify-between gap-8 py-7">
-			<div
-				class="hidden flex-1 items-center gap-8 font-medium text-muted-foreground md:flex md:justify-center lg:gap-16"
-			>
-				{#each navItems as navItem}
-					<a
-						href={'link' in navItem ? navItem.link : ''}
-						class="hover:text-primary"
-						onclick={'onClick' in navItem
-							? (e) => {
-									e.preventDefault();
-									navItem.onClick();
-								}
-							: undefined}
-					>
-						{#if 'text' in navItem}
-							{navItem.text}
-						{:else}
-							<div class="flex items-center gap-4 font-bold text-foreground">
-								<img class="h-8 w-8" src={navItem.image} alt={navItem.alt} />
-								<span>Ranku</span>
-							</div>
-						{/if}
-					</a>
-				{/each}
-			</div>
-
-			<div class="mr-auto">
-				<DropdownMenu>
-					<DropdownMenuTrigger class="md:hidden">
-						{#snippet child({ props })}
-							<Button {...props} variant="outline" size="icon">
-								<MenuIcon />
-								<span class="sr-only">Menu</span>
-							</Button>
-						{/snippet}
-					</DropdownMenuTrigger>
-					<DropdownMenuContent class="w-48" align="start">
-						<DropdownMenuGroup>
-							<DropdownMenuItem
-								onSelect={() => {
-									goto('/');
-								}}
-							>
-								Home
-							</DropdownMenuItem>
-							{#each navItems as navItem}
-								{#if 'text' in navItem}
-									<DropdownMenuItem
-										onSelect={() => {
-											if ('link' in navItem) {
-												goto(navItem.link);
-											} else {
-												navItem.onClick();
-											}
-										}}
-									>
-										{navItem.text}
-									</DropdownMenuItem>
-								{/if}
-							{/each}
-						</DropdownMenuGroup>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
-			<ThemeSwitcher />
-		</div>
-	</header>
-	<main class="grow">
-		{@render children()}
+	<main class="mx-auto flex h-screen w-screen flex-col px-6 md:max-w-7xl">
+		<Navbar session={data.session} user={data.user} />
+		<main class="grow">
+			{@render children()}
+		</main>
 	</main>
-</main>
+</QueryClientProvider>

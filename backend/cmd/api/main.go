@@ -4,9 +4,11 @@ import (
 	"log"
 	"net/http"
 	"ranku/internal/routes"
+	"ranku/internal/utils"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -18,7 +20,14 @@ func main() {
 
 	r := chi.NewRouter()
 
+	env := utils.GetEnv()
+
 	r.Use(middleware.Logger)
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins: []string{env.FRONTEND_URL},
+		AllowedMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"*"},
+	}))
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("ok"))

@@ -1,9 +1,9 @@
 <script lang="ts">
 	import * as Empty from '$lib/components/ui/empty/index.js';
 	import { LogInIcon } from 'lucide-svelte';
-	import type { PageProps } from '../$types';
+	import type { LayoutProps } from '../$types';
 
-	const { data }: PageProps = $props();
+	const { data }: LayoutProps = $props();
 </script>
 
 {#if !data.session || !data.user}

@@ -1,7 +1,7 @@
 import { fail, type Actions } from '@sveltejs/kit';
 import { superValidate } from 'sveltekit-superforms';
 import { zod4 } from 'sveltekit-superforms/adapters';
-import { registerSchema } from '../schema';
+import { registerSchema } from '$lib/schemas/register.schema';
 import { auth } from '$lib/auth';
 import { z } from 'zod/v4';
 

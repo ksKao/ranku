@@ -72,18 +72,43 @@ func (q *Queries) CreateCharacter(ctx context.Context, arg CreateCharacterParams
 }
 
 const getAllCharactersByRandomOrder = `-- name: GetAllCharactersByRandomOrder :many
-select id, image, name, "anilistId", "birthYear", "birthMonth", "birthDay", "bloodType", age, description, gender from "character" order by random()
+select distinct
+    on ("anime"."anilistId") character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender,
+    "anime"."name" as "anime"
+from
+    "character"
+    join "anime_character" on "anime_character"."characterId" = "character"."id"
+    join "anime" on "anime"."id" = "anime_character"."animeId"
+group by
+    "character"."id",
+    "anime"."id"
+order by "anime"."anilistId", random()
 `
 
-func (q *Queries) GetAllCharactersByRandomOrder(ctx context.Context) ([]Character, error) {
+type GetAllCharactersByRandomOrderRow struct {
+	ID          uuid.UUID `json:"id"`
+	Image       string    `json:"image"`
+	Name        string    `json:"name"`
+	AnilistId   int32     `json:"anilistId"`
+	BirthYear   *int32    `json:"birthYear"`
+	BirthMonth  *int32    `json:"birthMonth"`
+	BirthDay    *int32    `json:"birthDay"`
+	BloodType   *string   `json:"bloodType"`
+	Age         *string   `json:"age"`
+	Description *string   `json:"description"`
+	Gender      *string   `json:"gender"`
+	Anime       string    `json:"anime"`
+}
+
+func (q *Queries) GetAllCharactersByRandomOrder(ctx context.Context) ([]GetAllCharactersByRandomOrderRow, error) {
 	rows, err := q.db.Query(ctx, getAllCharactersByRandomOrder)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Character
+	var items []GetAllCharactersByRandomOrderRow
 	for rows.Next() {
-		var i Character
+		var i GetAllCharactersByRandomOrderRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Image,
@@ -96,6 +121,7 @@ func (q *Queries) GetAllCharactersByRandomOrder(ctx context.Context) ([]Characte
 			&i.Age,
 			&i.Description,
 			&i.Gender,
+			&i.Anime,
 		); err != nil {
 			return nil, err
 		}
