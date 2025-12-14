@@ -11,7 +11,8 @@ export const characterSchema = z.object({
 	gender: z.string().nullable(),
 	id: z.string(),
 	image: z.string(),
-	name: z.string()
+	name: z.string(),
+	anime: z.string()
 });
 
 export type CharacterSchema = z.infer<typeof characterSchema>;

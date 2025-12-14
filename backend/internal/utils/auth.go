@@ -36,6 +36,8 @@ func GetUser(r *http.Request) (repositories.User, error) {
 		return repositories.User{}, err
 	}
 
+	defer conn.Close()
+
 	q := repositories.New(conn)
 
 	userId := r.Context().Value(KeyUserID).(string)

@@ -41,6 +41,8 @@ func searchCharacters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer conn.Close()
+
 	q := repositories.New(conn)
 	results, err = q.SearchCharacter(ctx, fmt.Sprintf("%%%s%%", query))
 
@@ -79,6 +81,8 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 		utils.WriteGenericInternalServerError(w)
 		return
 	}
+
+	defer conn.Close()
 
 	var userIdNullable *string = nil
 	userId, exists := utils.TryGetUserIdFromRequest(r)

@@ -57,6 +57,8 @@ func likeCharacter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer conn.Close()
+
 	q := repositories.New(conn)
 
 	liked, err := q.CheckLikeExists(ctx, repositories.CheckLikeExistsParams{
@@ -130,6 +132,8 @@ func unlikeCharacter(w http.ResponseWriter, r *http.Request) {
 		utils.WriteGenericInternalServerError(w)
 		return
 	}
+
+	defer conn.Close()
 
 	q := repositories.New(conn)
 

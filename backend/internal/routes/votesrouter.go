@@ -138,6 +138,7 @@ func createVote(w http.ResponseWriter, r *http.Request) {
 		utils.WriteGenericInternalServerError(w)
 		return
 	}
+	defer conn.Close()
 
 	q := repositories.New(conn)
 
@@ -188,6 +189,8 @@ func getVoteMatchup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	defer conn.Close()
+
 	q := repositories.New(conn)
 
 	votes, err := q.GetUserVotes(ctx, user.ID)
@@ -209,9 +212,14 @@ func getVoteMatchup(w http.ResponseWriter, r *http.Request) {
 	// check if user's has exhausted all possible vote combinations
 	numberOfCombinations := (len(allCharacters) * (len(allCharacters) - 1)) / 2
 
+	type responseCharacter struct {
+		repositories.Character
+		Anime string `json:"anime"`
+	}
+
 	type response struct {
-		Char1 *repositories.GetAllCharactersByRandomOrderRow `json:"char1"`
-		Char2 *repositories.GetAllCharactersByRandomOrderRow `json:"char2"`
+		Char1 *responseCharacter `json:"char1"`
+		Char2 *responseCharacter `json:"char2"`
 	}
 
 	output := response{
@@ -233,13 +241,18 @@ func getVoteMatchup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Find a valid matchup that hasn't been voted on yet
-	var char1, char2 *repositories.GetAllCharactersByRandomOrderRow
+	var char1, char2 *responseCharacter
 	var validMatchupFound bool
 
 	for i := 0; i < len(allCharacters)-1; i++ {
-		char1 = &allCharacters[i]
+		char1 = &responseCharacter{
+			Character: allCharacters[i],
+		}
+
 		for j := i + 1; j < len(allCharacters); j++ {
-			char2 = &allCharacters[j]
+			char2 = &responseCharacter{
+				Character: allCharacters[j],
+			}
 
 			// Ensure the characters are not the same
 			if char1.ID == char2.ID {
@@ -265,6 +278,26 @@ func getVoteMatchup(w http.ResponseWriter, r *http.Request) {
 		render.JSON(w, r, output)
 		return
 	}
+
+	char1Anime, err := q.GetAnimeNameByCharacterId(ctx, char1.ID)
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	char1.Anime = char1Anime
+
+	char2Anime, err := q.GetAnimeNameByCharacterId(ctx, char2.ID)
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	char2.Anime = char2Anime
 
 	output.Char1 = char1
 	output.Char2 = char2

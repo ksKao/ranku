@@ -61,14 +61,4 @@ group by
     "anime"."id";
 
 -- name: GetAllCharactersByRandomOrder :many
-select distinct
-    on ("anime"."anilistId") "character".*,
-    "anime"."name" as "anime"
-from
-    "character"
-    join "anime_character" on "anime_character"."characterId" = "character"."id"
-    join "anime" on "anime"."id" = "anime_character"."animeId"
-group by
-    "character"."id",
-    "anime"."id"
-order by "anime"."anilistId", random();
+select * from "character" order by random();

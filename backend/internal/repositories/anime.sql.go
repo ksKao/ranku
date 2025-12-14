@@ -38,6 +38,23 @@ func (q *Queries) GetAnimeByAnidbId(ctx context.Context, anilistid int32) (Anime
 	return i, err
 }
 
+const getAnimeNameByCharacterId = `-- name: GetAnimeNameByCharacterId :one
+select "anime"."name"
+from "anime"
+  join "anime_character" on "anime_character"."animeId" = "anime"."id"
+  join "character" on "anime_character"."characterId" = "character"."id"
+where "character"."id" = $1
+order by "anime"."anilistId"
+limit 1
+`
+
+func (q *Queries) GetAnimeNameByCharacterId(ctx context.Context, id uuid.UUID) (string, error) {
+	row := q.db.QueryRow(ctx, getAnimeNameByCharacterId, id)
+	var name string
+	err := row.Scan(&name)
+	return name, err
+}
+
 const updateAnimeNameById = `-- name: UpdateAnimeNameById :one
 update "anime" set "name" = $1 where "anime"."id" = $2 returning id, name, "anilistId"
 `
