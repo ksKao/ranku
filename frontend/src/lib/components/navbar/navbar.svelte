@@ -70,7 +70,7 @@
 </script>
 
 <header class="sticky top-0 z-50 bg-background">
-	<div class="flex w-full items-center justify-between gap-8 py-7">
+	<div class="relative flex w-full items-center justify-between gap-8 py-7">
 		<div
 			class="hidden flex-1 items-center gap-8 font-medium text-muted-foreground md:flex md:justify-center lg:gap-16"
 		>
@@ -90,16 +90,16 @@
 					{:else}
 						<div class="flex items-center gap-4 font-bold text-foreground">
 							<img class="h-8 w-8" src={navItem.image} alt={navItem.alt} />
-							<span>Ranku</span>
+							<span>Leaderboard</span>
 						</div>
 					{/if}
 				</a>
 			{/each}
 		</div>
 
-		<div class="mr-auto">
+		<div class="mr-auto md:hidden">
 			<DropdownMenu>
-				<DropdownMenuTrigger class="md:hidden">
+				<DropdownMenuTrigger>
 					{#snippet child({ props })}
 						<Button {...props} variant="outline" size="icon">
 							<MenuIcon />
@@ -135,6 +135,8 @@
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>
-		<ThemeSwitcher />
+		<div class="absolute top-1/2 right-0 -translate-y-1/2">
+			<ThemeSwitcher />
+		</div>
 	</div>
 </header>

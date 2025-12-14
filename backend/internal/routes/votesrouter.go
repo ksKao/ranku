@@ -166,6 +166,8 @@ func createVote(w http.ResponseWriter, r *http.Request) {
 	}
 
 	updateRedisVoteCache(forUuid.String(), againstUuid.String())
+
+	log.Printf("Broadcasting vote update....")
 	utils.BroadcastUpdate()
 
 	w.WriteHeader(http.StatusCreated)
