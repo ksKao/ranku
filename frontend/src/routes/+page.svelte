@@ -1,9 +1,11 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { env } from '$env/dynamic/public';
-	import type { PageProps } from './$types';
+	import CharacterImage from '$lib/components/character-image.svelte';
+	import * as Item from '$lib/components/ui/item/index.js';
 	import { leaderboardSchema } from '$lib/schemas/leaderboard.schema';
+	import { onMount } from 'svelte';
 	import { flip } from 'svelte/animate';
+	import type { PageProps } from './$types';
 
 	const { data }: PageProps = $props();
 
@@ -35,18 +37,23 @@
 	});
 </script>
 
-<ul class="mx-auto max-w-4xl space-y-2">
-	{#each leaderboard.slice(0, 10) as char, i (char.id)}
-		<li animate:flip class="flex justify-between">
-			<p class="w-6">
-				{i + 1}
-			</p>
-			<p class="grow">
-				{char.name}
-			</p>
-			<p>
-				{char.score}
-			</p>
+<ul class="mx-auto max-w-4xl space-y-2 py-4">
+	{#each leaderboard as char, i (char.id)}
+		<li animate:flip>
+			<Item.Root variant="outline">
+				<Item.Media class="h-5 w-5">
+					{i + 1}
+				</Item.Media>
+				<Item.Content>
+					<div class="flex flex-row gap-4">
+						<CharacterImage class="h-8 w-8 rounded-sm" src={char.image} name={char.name} />
+						<Item.Title>{char.name}</Item.Title>
+					</div>
+				</Item.Content>
+				<Item.Actions>
+					{char.score}
+				</Item.Actions>
+			</Item.Root>
 		</li>
 	{/each}
 </ul>
