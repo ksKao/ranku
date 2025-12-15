@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"ranku/internal/repositories"
 	"ranku/internal/utils"
+	"slices"
+	"strings"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -26,10 +28,10 @@ func searchCharacters(w http.ResponseWriter, r *http.Request) {
 	ctx := context.Background()
 	query := r.URL.Query().Get("query")
 
-	results := []repositories.SearchCharacterRow{}
+	searchResults := []repositories.SearchCharacterRow{}
 
 	if (len(query)) == 0 {
-		render.JSON(w, r, results)
+		render.JSON(w, r, searchResults)
 		return
 	}
 
@@ -44,7 +46,7 @@ func searchCharacters(w http.ResponseWriter, r *http.Request) {
 	defer conn.Close()
 
 	q := repositories.New(conn)
-	results, err = q.SearchCharacter(ctx, fmt.Sprintf("%%%s%%", query))
+	searchResults, err = q.SearchCharacter(ctx, fmt.Sprintf("%s%%", query))
 
 	if err != nil {
 		utils.LogError(err)
@@ -52,14 +54,55 @@ func searchCharacters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	log.Printf("Search characters returned %d results for query %s", len(results), query)
+	log.Printf("Search characters returned %d results for query %s", len(searchResults), query)
 
-	if len(results) == 0 {
+	if len(searchResults) == 0 {
 		render.JSON(w, r, []repositories.SearchCharacterRow{})
 		return
 	}
 
-	render.JSON(w, r, results)
+	finalResults := []repositories.SearchCharacterRow{}
+
+	// check for exact match first
+	foundIndex := slices.IndexFunc(searchResults, func(char repositories.SearchCharacterRow) bool {
+		return strings.EqualFold(char.Name, query)
+	})
+
+	if foundIndex != -1 {
+		finalResults = append(finalResults, searchResults[foundIndex])
+	}
+
+	matchCount := 0
+	queryLower := strings.ToLower(query)
+
+	// get 5 name matches
+	for _, character := range searchResults {
+
+		if strings.HasPrefix(strings.ToLower(character.Name), queryLower) && !strings.EqualFold(character.Name, queryLower) {
+			finalResults = append(finalResults, character)
+			matchCount++
+		}
+
+		if matchCount == 5 {
+			break
+		}
+	}
+
+	// get 5 anime matches
+	matchCount = 0
+	for _, character := range searchResults {
+
+		if strings.HasPrefix(strings.ToLower(character.Anime), queryLower) && !strings.HasPrefix(strings.ToLower(character.Name), queryLower) && !strings.EqualFold(character.Name, queryLower) {
+			finalResults = append(finalResults, character)
+			matchCount++
+		}
+
+		if matchCount == 5 {
+			break
+		}
+	}
+
+	render.JSON(w, r, finalResults)
 }
 
 func getCharacterById(w http.ResponseWriter, r *http.Request) {

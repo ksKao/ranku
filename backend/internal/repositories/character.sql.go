@@ -245,12 +245,13 @@ func (q *Queries) LinkCharacterToAnime(ctx context.Context, arg LinkCharacterToA
 }
 
 const searchCharacter = `-- name: SearchCharacter :many
-select character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender, "anime"."name" as "anime"
+select distinct on ("character"."id") character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender, "anime"."name" as "anime"
 from
     "character"
     join "anime_character" on "anime_character"."characterId" = "character"."id"
     join "anime" on "anime"."id" = "anime_character"."animeId"
 where "anime"."name" ilike $1 or "character"."name" ilike $1
+order by "character"."id", "character"."anilistId"
 `
 
 type SearchCharacterRow struct {

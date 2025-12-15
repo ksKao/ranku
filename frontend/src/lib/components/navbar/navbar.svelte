@@ -10,11 +10,12 @@
 		DropdownMenuItem,
 		DropdownMenuTrigger
 	} from '$lib/components/ui/dropdown-menu';
-	import { loginDialogState } from '$lib/states.svelte';
+	import { loginDialogState, searchCommandState } from '$lib/states.svelte';
 	import type { Session, User } from 'better-auth';
 	import { MenuIcon } from 'lucide-svelte';
 	import { toast } from 'svelte-sonner';
 	import ThemeSwitcher from './theme-switcher.svelte';
+	import SearchCommand from './search-command.svelte';
 
 	type Props = {
 		user: User | undefined;
@@ -42,7 +43,12 @@
 				}
 			}
 		},
-		{ text: 'Search', onClick: () => {} },
+		{
+			text: 'Search',
+			onClick: () => {
+				searchCommandState.open = true;
+			}
+		},
 		{ image: favicon, alt: 'logo', link: '/' },
 		{
 			text: 'Profile',
@@ -69,6 +75,7 @@
 	]);
 </script>
 
+<SearchCommand />
 <header class="sticky top-0 z-50 bg-background">
 	<div class="relative flex w-full items-center justify-between gap-8 py-7">
 		<div
