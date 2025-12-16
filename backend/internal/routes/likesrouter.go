@@ -52,6 +52,11 @@ func getLikedCharacters(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if likes == nil {
+		render.JSON(w, r, []any{})
+		return
+	}
+
 	render.JSON(w, r, likes)
 }
 

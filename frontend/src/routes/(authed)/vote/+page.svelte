@@ -1,12 +1,12 @@
 <script lang="ts">
 	import * as Alert from '$lib/components/ui/alert/index';
 	import Button from '$lib/components/ui/button/button.svelte';
-	import { kyClient, kyClientAuthed } from '$lib/ky';
+	import { kyClientAuthed } from '$lib/ky';
 	import { matchupSchema } from '$lib/schemas/matchup.schema';
 	import { createMutation, createQuery } from '@tanstack/svelte-query';
 	import { CircleAlertIcon, LoaderCircleIcon, RefreshCcwIcon } from 'lucide-svelte';
-	import VoteCharacterCard from './vote-character-card.svelte';
 	import { toast } from 'svelte-sonner';
+	import VoteCharacterCard from './vote-character-card.svelte';
 
 	const query = createQuery(() => ({
 		queryKey: ['getVoteMatchup'],
