@@ -154,8 +154,8 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 	type response struct {
 		repositories.Character
 		Animes []string `json:"animes"`
-		Likes  int64
-		Liked  bool
+		Likes  int64    `json:"likes"`
+		Liked  bool     `json:"liked"`
 	}
 
 	firstResult := results[0]
@@ -172,7 +172,7 @@ func getCharacterById(w http.ResponseWriter, r *http.Request) {
 			BloodType:   firstResult.BloodType,
 			Age:         firstResult.Age,
 			Description: firstResult.Description,
-			Gender:      firstResult.Description,
+			Gender:      firstResult.Gender,
 		},
 		Animes: []string{},
 		Likes:  firstResult.Likes,

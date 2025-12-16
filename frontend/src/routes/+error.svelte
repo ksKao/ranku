@@ -2,8 +2,6 @@
 	import * as Empty from '$lib/components/ui/empty/index';
 	import { page } from '$app/state';
 	import { BanIcon, GlobeIcon } from 'lucide-svelte';
-
-	console.log('hello');
 </script>
 
 <div class="flex h-full w-full items-center justify-center">

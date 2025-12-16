@@ -59,7 +59,8 @@ where
     "character"."id" = $1
 group by
     "character"."id",
-    "anime"."id";
+    "anime"."id"
+order by "anime"."anilistId";
 
 -- name: GetAllCharactersByRandomOrder :many
 select * from "character" order by random();

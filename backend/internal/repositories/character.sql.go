@@ -171,6 +171,7 @@ where
 group by
     "character"."id",
     "anime"."id"
+order by "anime"."anilistId"
 `
 
 type GetCharacterByIdParams struct {

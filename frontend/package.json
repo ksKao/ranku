@@ -23,6 +23,7 @@
 		"@sveltejs/adapter-node": "^5.4.0",
 		"@sveltejs/kit": "^2.48.5",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@tailwindcss/typography": "^0.5.19",
 		"@tailwindcss/vite": "^4.1.17",
 		"@types/node": "^22",
 		"@types/pg": "^8.15.6",
@@ -52,9 +53,11 @@
 	"dependencies": {
 		"@tanstack/svelte-query": "^6.0.10",
 		"better-auth": "^1.4.4",
+		"date-fns": "^4.1.0",
 		"ky": "^1.14.1",
 		"lucide-svelte": "^0.561.0",
 		"pg": "^8.16.3",
-		"runed": "^0.37.0"
+		"runed": "^0.37.0",
+		"svelte-exmarkdown": "^5.0.2"
 	}
 }

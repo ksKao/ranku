@@ -44,7 +44,11 @@
 		{:else}
 			<Command.Empty>No Results</Command.Empty>
 			{#each searchQuery.data as character (character.id)}
-				<Command.LinkItem href={`characters/${character.id}`} class="gap-4">
+				<Command.LinkItem
+					href={`/characters/${character.id}`}
+					class="gap-4"
+					onSelect={() => (searchCommandState.open = false)}
+				>
 					<CharacterImage
 						src={character.image}
 						name={character.name}
