@@ -22,6 +22,7 @@
 
 <svelte:head>
 	<link rel="icon" href={favicon} />
+	<title>Ranku</title>
 </svelte:head>
 
 <QueryClientProvider client={queryClient}>
