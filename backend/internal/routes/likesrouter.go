@@ -8,6 +8,7 @@ import (
 	"ranku/internal/utils"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 	"github.com/google/uuid"
 )
 
@@ -16,10 +17,42 @@ func LikesRouter() http.Handler {
 
 	r.Use(utils.AuthedMiddleware)
 
+	r.Get("/", getLikedCharacters)
 	r.Post("/", likeCharacter)
 	r.Delete("/", unlikeCharacter)
 
 	return r
+}
+
+func getLikedCharacters(w http.ResponseWriter, r *http.Request) {
+	user, err := utils.GetUser(r)
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	ctx := context.Background()
+	conn, err := utils.GetDbConnection(ctx)
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	q := repositories.New(conn)
+
+	likes, err := q.GetUserLikes(ctx, user.ID)
+
+	if err != nil {
+		utils.LogError(err)
+		utils.WriteGenericInternalServerError(w)
+		return
+	}
+
+	render.JSON(w, r, likes)
 }
 
 func likeCharacter(w http.ResponseWriter, r *http.Request) {

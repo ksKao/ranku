@@ -60,39 +60,24 @@ func (q *Queries) DeleteLike(ctx context.Context, arg DeleteLikeParams) error {
 }
 
 const getUserLikes = `-- name: GetUserLikes :many
-select character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender, "anime"."name" as "anime"
+select
+  character.id, character.image, character.name, character."anilistId", character."birthYear", character."birthMonth", character."birthDay", character."bloodType", character.age, character.description, character.gender
 from
-    "like"
-    join "character" on "character"."id" = "like"."characterId"
-    join "anime_character" on "anime_character"."characterId" = "character"."id"
-    join "anime" on "anime_character"."animeId" = "anime"."id"
-where "like"."userId" = $1
+  "like"
+  join "character" on "character"."id" = "like"."characterId"
+where
+  "like"."userId" = $1
 `
 
-type GetUserLikesRow struct {
-	ID          uuid.UUID `json:"id"`
-	Image       string    `json:"image"`
-	Name        string    `json:"name"`
-	AnilistId   int32     `json:"anilistId"`
-	BirthYear   *int32    `json:"birthYear"`
-	BirthMonth  *int32    `json:"birthMonth"`
-	BirthDay    *int32    `json:"birthDay"`
-	BloodType   *string   `json:"bloodType"`
-	Age         *string   `json:"age"`
-	Description *string   `json:"description"`
-	Gender      *string   `json:"gender"`
-	Anime       string    `json:"anime"`
-}
-
-func (q *Queries) GetUserLikes(ctx context.Context, userid string) ([]GetUserLikesRow, error) {
+func (q *Queries) GetUserLikes(ctx context.Context, userid string) ([]Character, error) {
 	rows, err := q.db.Query(ctx, getUserLikes, userid)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetUserLikesRow
+	var items []Character
 	for rows.Next() {
-		var i GetUserLikesRow
+		var i Character
 		if err := rows.Scan(
 			&i.ID,
 			&i.Image,
@@ -105,7 +90,6 @@ func (q *Queries) GetUserLikes(ctx context.Context, userid string) ([]GetUserLik
 			&i.Age,
 			&i.Description,
 			&i.Gender,
-			&i.Anime,
 		); err != nil {
 			return nil, err
 		}
