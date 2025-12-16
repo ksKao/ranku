@@ -47,7 +47,11 @@
 				<Item.Content>
 					<div class="flex flex-row gap-4">
 						<CharacterImage class="h-8 w-8 rounded-sm" src={char.image} name={char.name} />
-						<Item.Title>{char.name}</Item.Title>
+						<Item.Title>
+							<a href={`/characters/${char.id}`}>
+								{char.name}
+							</a>
+						</Item.Title>
 					</div>
 				</Item.Content>
 				<Item.Actions>
