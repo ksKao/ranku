@@ -4,9 +4,15 @@ import type { PageServerLoad } from './$types';
 import { z } from 'zod/v4';
 import { characterSchema } from '$lib/schemas/character.schema';
 
-export const load: PageServerLoad = async ({ params }) => {
+export const load: PageServerLoad = async ({ params, locals }) => {
 	try {
-		const response = await kyClient.get(`characters/${params.characterId}`).json();
+		const response = await kyClient
+			.get(`characters/${params.characterId}`, {
+				headers: {
+					Authorization: `Bearer ${locals.token}`
+				}
+			})
+			.json();
 
 		const character = z
 			.object({
@@ -21,7 +27,6 @@ export const load: PageServerLoad = async ({ params }) => {
 			.parse(response);
 
 		return {
-			a: 'b',
 			character
 		};
 	} catch {

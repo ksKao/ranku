@@ -12,6 +12,14 @@ export async function handle({ event, resolve }) {
 	if (session) {
 		event.locals.session = session.session;
 		event.locals.user = session.user;
+
+		try {
+			const data = await auth.api.getToken({ headers: event.request.headers });
+
+			event.locals.token = data.token;
+		} catch (e) {
+			console.log('Failed to get token: ', e);
+		}
 	}
 
 	return svelteKitHandler({ event, resolve, auth, building });

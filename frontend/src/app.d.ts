@@ -9,6 +9,7 @@ declare global {
 		interface Locals {
 			session: Session | undefined;
 			user: User | undefined;
+			token: string | undefined;
 		}
 		// interface PageData {}
 		// interface PageState {}
