@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
-	import favicon from '$lib/assets/favicon.svg';
+	import favicon from '$lib/assets/favicon.png';
 	import Navbar from '$lib/components/navbar/navbar.svelte';
 	import { Toaster } from '$lib/components/ui/sonner/index.js';
 	import { QueryClient, QueryClientProvider } from '@tanstack/svelte-query';
